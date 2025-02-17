@@ -154,6 +154,7 @@ public class Player : MonoBehaviour
             {
                 assignedWeapons.Add(weaponToAdd);
                 weaponToAdd.gameObject.SetActive(true);
+                UpdateWeaponIconsUI();
                 unassignedWeapons.RemoveAt(weaponNumber);
             }
         }
@@ -166,6 +167,7 @@ public class Player : MonoBehaviour
         {
             assignedWeapons.Add(weaponToAdd);
             weaponToAdd.gameObject.SetActive(true);
+            UpdateWeaponIconsUI();
             unassignedWeapons.Remove(weaponToAdd);
         }
     }
@@ -180,6 +182,7 @@ public class Player : MonoBehaviour
             }
             if (assignedWeapons.Contains(weaponToRemove))
             {
+                UpdateWeaponIconsUI();
                 assignedWeapons.Remove(weaponToRemove);
             }
         }
@@ -189,5 +192,16 @@ public class Player : MonoBehaviour
     {
         CleanWeaponLists();
     }
+
+
+
+    public void UpdateWeaponIconsUI()
+    {
+        if (WeaponIconsManager.instance != null)
+        {
+            WeaponIconsManager.instance.UpdateWeaponIcons();
+        }
+    }
+
 
 }

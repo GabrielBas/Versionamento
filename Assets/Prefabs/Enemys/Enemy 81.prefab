@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3105658986032607884}
   - component: {fileID: 4582988393333720260}
   - component: {fileID: 1550331112689021806}
+  - component: {fileID: 1130700196663696843}
   m_Layer: 6
   m_Name: Enemy 81
   m_TagString: Enemy
@@ -34,7 +35,7 @@ Transform:
   m_Children:
   - {fileID: 9197473589074528839}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 27
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4528377896462124683
 SpriteRenderer:
@@ -77,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 1342887685
   m_SortingLayer: 5
   m_SortingOrder: 100
-  m_Sprite: {fileID: -1891246371, guid: 2a5a6b9383ae04446a3e96ca32c3aeb6, type: 3}
+  m_Sprite: {fileID: 1163061265, guid: 11471bceed94e764089c69654a1abde8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -162,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7cb306a42337e7479291fc8c6ad841d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 0}
+  animator: {fileID: 1130700196663696843}
   rb: {fileID: 4582988393333720260}
   sprite: {fileID: 4528377896462124683}
   speed: 2
@@ -176,6 +177,27 @@ MonoBehaviour:
   coinDropRate: 0.5
   attackTriggerName: Attack
   deathEffect: {fileID: 8033929122623964790, guid: 6683ff81de4bbd94a8d1664fc35039e8, type: 3}
+--- !u!95 &1130700196663696843
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053188954830687609}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d8f93c1c2b04f924b866faa8bbded311, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &7586453364049266241
 GameObject:
   m_ObjectHideFlags: 0

@@ -11,8 +11,11 @@ public class ScreenshotGallery : MonoBehaviour
     public Image fullScreenImage; // Para exibir em tela cheia
     public GameObject fullScreenPanel; // Painel de visualização
     public GameObject scrollViewPanel; // O ScrollView que será desativado ao abrir fullscreen
+    public Button setAsBackgroundButton; // Botão para definir como background
+    public GameObject backButton; // Botão "Back" para voltar ao menu principal
 
     private string screenshotPath; // Caminho onde as screenshots estão salvas
+    private string selectedImagePath; // Caminho da imagem selecionada
 
     void Start()
     {
@@ -75,7 +78,7 @@ public class ScreenshotGallery : MonoBehaviour
         Button button = thumbnail.GetComponent<Button>();
         if (button != null)
         {
-            button.onClick.AddListener(() => ShowFullScreen(texture));
+            button.onClick.AddListener(() => ShowFullScreen(filePath, texture));
         }
         else
         {
@@ -83,7 +86,7 @@ public class ScreenshotGallery : MonoBehaviour
         }
     }
 
-    public void ShowFullScreen(Texture2D texture)
+    public void ShowFullScreen(string filePath, Texture2D texture)
     {
         if (fullScreenImage == null || fullScreenPanel == null)
         {
@@ -93,11 +96,25 @@ public class ScreenshotGallery : MonoBehaviour
 
         fullScreenImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         fullScreenPanel.SetActive(true);
+        selectedImagePath = filePath; // Armazena o caminho da imagem selecionada
 
-        // 🔴 Desativar o ScrollView ao abrir fullscreen
         if (scrollViewPanel != null)
         {
             scrollViewPanel.SetActive(false);
+        }
+
+        // Desativar botão "Back"
+        if (backButton != null)
+        {
+            backButton.SetActive(false);
+        }
+
+        // Ativar botão "Definir como Background"
+        if (setAsBackgroundButton != null)
+        {
+            setAsBackgroundButton.gameObject.SetActive(true);
+            setAsBackgroundButton.onClick.RemoveAllListeners();
+            setAsBackgroundButton.onClick.AddListener(SetAsBackground);
         }
     }
 
@@ -108,10 +125,37 @@ public class ScreenshotGallery : MonoBehaviour
             fullScreenPanel.SetActive(false);
         }
 
-        // ✅ Ativar o ScrollView ao fechar fullscreen
         if (scrollViewPanel != null)
         {
             scrollViewPanel.SetActive(true);
         }
+
+        // Reativar botão "Back"
+        if (backButton != null)
+        {
+            backButton.SetActive(true);
+        }
+
+        if (setAsBackgroundButton != null)
+        {
+            setAsBackgroundButton.gameObject.SetActive(false);
+        }
+    }
+
+    public void SetAsBackground()
+    {
+        if (string.IsNullOrEmpty(selectedImagePath))
+        {
+            Debug.LogError("Nenhuma imagem foi selecionada!");
+            return;
+        }
+
+        PlayerPrefs.SetString("MenuBackgroundPath", selectedImagePath);
+        PlayerPrefs.Save();
+        Debug.Log("Imagem definida como background: " + selectedImagePath);
+
+        // Disparar evento para atualizar o background
+        BackgroundManager.ChangeBackground();
+
     }
 }

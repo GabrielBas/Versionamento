@@ -7,7 +7,9 @@ public class MainMenu : MonoBehaviour
 {
     [SerializeField] private GameObject panelMainMenu;
     [SerializeField] private GameObject panelOptions;
-    
+    [SerializeField] private GameObject panelGallery;
+
+
     public void StartGame()
     {
         SceneManager.LoadScene(1);
@@ -23,6 +25,18 @@ public class MainMenu : MonoBehaviour
     public void CloseOptions()
     {
         panelOptions.SetActive(false);
+        panelMainMenu.SetActive(true);
+    }
+
+    public void Gallery()
+    {
+        panelMainMenu.SetActive(false);
+        panelGallery.SetActive(true);
+    }
+
+    public void CloseGallery()
+    {
+        panelGallery.SetActive(false);
         panelMainMenu.SetActive(true);
     }
 

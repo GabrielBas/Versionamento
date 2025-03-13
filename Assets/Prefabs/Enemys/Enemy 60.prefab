@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4528377896462124683}
   - component: {fileID: 3105658986032607884}
   - component: {fileID: 4582988393333720260}
-  - component: {fileID: 1550331112689021806}
+  - component: {fileID: 2786873229084490417}
   - component: {fileID: 1717783629299268082}
   m_Layer: 6
   m_Name: Enemy 60
@@ -35,7 +35,7 @@ Transform:
   m_Children:
   - {fileID: 9197473589074528839}
   m_Father: {fileID: 0}
-  m_RootOrder: 27
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4528377896462124683
 SpriteRenderer:
@@ -151,32 +151,33 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
---- !u!114 &1550331112689021806
+--- !u!114 &2786873229084490417
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5053188954830687609}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d7cb306a42337e7479291fc8c6ad841d, type: 3}
+  m_Script: {fileID: 11500000, guid: 3bf6582ca5b37bc4d820a2d984f49a98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1717783629299268082}
   rb: {fileID: 4582988393333720260}
   sprite: {fileID: 4528377896462124683}
   speed: 2
-  damage: 3
-  hitWaitTime: 1
-  health: 5
+  damage: 1
+  hitWaitTime: 0.2
+  health: 100
   originalColor: {r: 0, g: 0, b: 0, a: 0}
   knockBackTime: 0.5
   expToGive: 1
-  coinValue: 100
+  coinValue: 1
   coinDropRate: 0.5
   attackTriggerName: Attack
-  deathEffect: {fileID: 8033929122623964790, guid: 6683ff81de4bbd94a8d1664fc35039e8, type: 3}
+  deathEffect: {fileID: 8033929122623964790, guid: cefeabf2d7030654983cb2fe4821b7f1, type: 3}
+  blackAndWhiteEffect: {fileID: 0}
 --- !u!95 &1717783629299268082
 Animator:
   serializedVersion: 5
@@ -224,8 +225,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7586453364049266241}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.44, y: -0.16, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.4, y: -0.29, z: 0}
+  m_LocalScale: {x: 0.99662244, y: 0.99662244, z: 0.99662244}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6230258391714601847}

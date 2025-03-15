@@ -1,47 +1,39 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.PostProcessing;
-using UnityEngine.Rendering.Universal;
 
 public class DesaturationEffect : MonoBehaviour
 {
-    public Volume postProcessVolume;
-    private ColorGrading colorGrading;
-    private float originalSaturation;
-    public float desaturationAmount = -100f; // Saturação reduzida ao máximo
+    public float desaturationAmount = -100f;  // Nível de saturação (-100 é preto e branco)
+    public float effectDuration = 5f;         // Duração do efeito em segundos
 
-    void Start()
+    public PostProcessVolume postProcessVolume;
+    private ColorGrading colorGrading;
+
+    void OnEnable()
     {
         if (postProcessVolume == null)
         {
-            Debug.LogError("Post-process volume não atribuído no inspector.");
-            return;
+            postProcessVolume = FindObjectOfType<PostProcessVolume>();
         }
 
-        if (!postProcessVolume.profile.TryGet(out colorGrading))
+        if (postProcessVolume != null && postProcessVolume.profile.TryGetSettings(out colorGrading))
         {
-            Debug.LogError("Color Grading não encontrado no Post-process volume.");
-            return;
+            colorGrading.saturation.value = desaturationAmount;
+            CancelInvoke("ResetSaturation");
+            Invoke("ResetSaturation", effectDuration);
         }
-
-        originalSaturation = colorGrading.saturation.value;
-        ActivateDesaturation();
+        else
+        {
+            Debug.LogError("Color Grading não encontrado no Post Process Volume!");
+        }
     }
 
-    void OnDestroy()
+    void ResetSaturation()
     {
-        ResetSaturation();
-    }
-
-    public void ActivateDesaturation()
-    {
-        colorGrading.saturation.value = desaturationAmount;
-    }
-
-    public void ResetSaturation()
-    {
-        colorGrading.saturation.value = originalSaturation;
+        if (colorGrading != null)
+        {
+            colorGrading.saturation.value = 0f;
+        }
     }
 }

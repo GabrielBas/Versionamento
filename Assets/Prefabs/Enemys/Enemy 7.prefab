@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3105658986032607884}
   - component: {fileID: 4582988393333720260}
   - component: {fileID: 1550331112689021806}
-  - component: {fileID: 4404517364141688074}
+  - component: {fileID: 3985721634816991048}
   m_Layer: 6
   m_Name: Enemy 7
   m_TagString: Enemy
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 1342887685
   m_SortingLayer: 5
   m_SortingOrder: 100
-  m_Sprite: {fileID: -1891246371, guid: 2a5a6b9383ae04446a3e96ca32c3aeb6, type: 3}
+  m_Sprite: {fileID: 542990611, guid: 1af5472f576657243a229d6833f311fd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7cb306a42337e7479291fc8c6ad841d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  animator: {fileID: 4404517364141688074}
+  animator: {fileID: 3985721634816991048}
   rb: {fileID: 4582988393333720260}
   sprite: {fileID: 4528377896462124683}
   speed: 2
@@ -177,7 +177,7 @@ MonoBehaviour:
   coinDropRate: 0.5
   attackTriggerName: Attack
   deathEffect: {fileID: 8033929122623964790, guid: 6683ff81de4bbd94a8d1664fc35039e8, type: 3}
---- !u!95 &4404517364141688074
+--- !u!95 &3985721634816991048
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -187,7 +187,7 @@ Animator:
   m_GameObject: {fileID: 5053188954830687609}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 89949660568ccec4da256a5aba8bb1f2, type: 2}
+  m_Controller: {fileID: 9100000, guid: a59c91886fe9aa94296ca7bc0e803d1c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

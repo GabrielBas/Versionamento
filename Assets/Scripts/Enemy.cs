@@ -65,16 +65,16 @@ public class Enemy : MonoBehaviour
             // Ativa a animação de caminhada quando o inimigo está se movendo
             if (!isConfused && knockBackCounter <= 0)
             {
-                animator.SetBool("isWalking", true);
+                animator.SetBool("IsWalking", true);
             }
             else
             {
-                animator.SetBool("isWalking", false);
+                animator.SetBool("IsWalking", false);
             }
         }
         else
         {
-            animator.SetBool("isWalking", false);
+            animator.SetBool("IsWalking", false);
         }
     }
 

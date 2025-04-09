@@ -21,10 +21,13 @@ public class Wave
 public class Spawn : MonoBehaviour
 {
     public List<Wave> waves;
+    public int maxEnemiesInScene = 50; // Limite de inimigos ativos
 
     private float timeCount;
     private int currentWaveIndex = 0;
     private GameObject player;
+
+    private List<Enemy> activeEnemies = new List<Enemy>();
 
     void Start()
     {
@@ -35,6 +38,9 @@ public class Spawn : MonoBehaviour
     void Update()
     {
         timeCount += Time.deltaTime;
+
+        // Limpa inimigos mortos da lista
+        activeEnemies.RemoveAll(enemy => enemy == null);
     }
 
     IEnumerator SpawnWaves()
@@ -44,7 +50,8 @@ public class Spawn : MonoBehaviour
             Wave currentWave = waves[currentWaveIndex];
             Debug.Log("Wave " + (currentWaveIndex + 1) + " started!");
 
-            SpawnEnemies(currentWave);
+            yield return StartCoroutine(SpawnEnemies(currentWave));
+
             yield return new WaitForSeconds(currentWave.waveInterval);
 
             currentWaveIndex++;
@@ -53,7 +60,7 @@ public class Spawn : MonoBehaviour
         Debug.Log("All waves completed!");
     }
 
-    void SpawnEnemies(Wave wave)
+    IEnumerator SpawnEnemies(Wave wave)
     {
         foreach (var enemyInfo in wave.enemies)
         {
@@ -61,8 +68,17 @@ public class Spawn : MonoBehaviour
 
             for (int i = 0; i < enemiesToSpawn; i++)
             {
+                if (activeEnemies.Count >= maxEnemiesInScene)
+                {
+                    Debug.LogWarning("Número máximo de inimigos atingido! Aguardando espaço para spawnar mais...");
+                    yield return new WaitUntil(() => activeEnemies.Count < maxEnemiesInScene);
+                }
+
                 Vector2 spawnPosition = (Vector2)player.transform.position + Random.insideUnitCircle * enemyInfo.spawnRadius;
-                Instantiate(enemyInfo.enemyPrefab, spawnPosition, Quaternion.identity);
+                Enemy newEnemy = Instantiate(enemyInfo.enemyPrefab, spawnPosition, Quaternion.identity);
+                activeEnemies.Add(newEnemy);
+
+                yield return null; // Aguarda 1 frame para dar respiro ao sistema
             }
         }
     }

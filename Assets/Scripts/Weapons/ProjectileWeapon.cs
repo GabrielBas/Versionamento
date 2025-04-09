@@ -11,7 +11,9 @@ public class ProjectileWeapon : Weapon
 
     public float weaponRange;
     public LayerMask whatIsEnemy;
-    
+
+    public GameObject daggerTrailPrefab;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,7 +47,11 @@ public class ProjectileWeapon : Weapon
                     angle -= 90;
                     projectile.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-                    Instantiate(projectile, projectile.transform.position, projectile.transform.rotation).gameObject.SetActive(true);
+                    var newProjectile = Instantiate(projectile, transform.position, Quaternion.AngleAxis(angle, Vector3.forward));
+                    newProjectile.gameObject.SetActive(true);
+
+                    var trail = Instantiate(daggerTrailPrefab, newProjectile.transform.position, Quaternion.identity);
+                    trail.GetComponent<FollowProjectile>().target = newProjectile.transform;
                 }
 
             }

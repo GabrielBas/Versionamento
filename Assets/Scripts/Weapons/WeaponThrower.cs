@@ -5,22 +5,21 @@ using UnityEngine;
 public class WeaponThrower : Weapon
 {
     public EnemyDamage damager;
-
     private float throwCounter;
-    
-    // Start is called before the first frame update
+
+    [Header("Trail Settings")]
+    public GameObject daggerTrailPrefab; // Prefab com TrailRenderer
+
     void Start()
     {
         SetStats();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (statsUpdated == true)
+        if (statsUpdated)
         {
             statsUpdated = false;
-
             SetStats();
         }
 
@@ -29,22 +28,47 @@ public class WeaponThrower : Weapon
         {
             throwCounter = stats[weaponLevel].timeBetweenAttacks;
 
-            for(int i = 0; i < stats[weaponLevel].amount; i++)
+            for (int i = 0; i < stats[weaponLevel].amount; i++)
             {
-                Instantiate(damager, damager.transform.position, damager.transform.rotation).gameObject.SetActive(true);
+                // Instancia o projétil (Axe)
+                EnemyDamage newDamager = Instantiate(damager, damager.transform.position, damager.transform.rotation);
+                newDamager.gameObject.SetActive(true);
+
+                // Instancia o trail como objeto separado
+                if (daggerTrailPrefab != null)
+                {
+                    GameObject trailInstance = Instantiate(daggerTrailPrefab, newDamager.transform.position, Quaternion.identity);
+
+                    TrailRenderer trailRenderer = trailInstance.GetComponent<TrailRenderer>();
+                    if (trailRenderer != null)
+                    {
+                        trailRenderer.emitting = true;
+                    }
+
+                    StartCoroutine(FollowProjectileUntilDestroyed(newDamager.transform, trailInstance.transform));
+                }
             }
         }
+    }
 
+    IEnumerator FollowProjectileUntilDestroyed(Transform target, Transform trail)
+    {
+        // Enquanto o projétil existir, o trail o seguirá
+        while (target != null)
+        {
+            trail.position = target.position;
+            yield return null;
+        }
+
+        // Assim que o projétil for destruído, para de seguir, mas não destrói o trail
+        yield break;
     }
 
     void SetStats()
     {
         damager.damageAmount = stats[weaponLevel].damage;
         damager.lifeTime = stats[weaponLevel].duration;
-
         damager.transform.localScale = Vector3.one * stats[weaponLevel].range;
-
         throwCounter = 0f;
-
     }
 }

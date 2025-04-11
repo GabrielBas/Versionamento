@@ -79,6 +79,15 @@ public class EraserCursor : MonoBehaviour
             }
         }
     }
+    void OnDisable()
+    {
+        if (currentTrail != null)
+        {
+            Destroy(currentTrail);
+        }
+    }
+
 }
+
 
 

@@ -6,11 +6,10 @@ public class PlanetsWeapon : Weapon
 {
     public float rotateSpeed;
     public Transform holder, fireballToSpawn;
-    public EnemyDamageOrbiting damagePrefab;  // Alterado para EnemyDamageOrbiting para acessar currentLevel
+    public EnemyDamageOrbiting damagePrefab;
+    public GameObject planetsTrailPrefab;
     public float timeBetweenSpawn;
     private float spawnCounter;
-
-
 
     private class ProjectileData
     {
@@ -30,7 +29,20 @@ public class PlanetsWeapon : Weapon
         }
     }
 
+    private class TrailFollowData
+    {
+        public Transform trailObject;
+        public Transform dummyFollower;
+
+        public TrailFollowData(Transform trail, Transform dummy)
+        {
+            trailObject = trail;
+            dummyFollower = dummy;
+        }
+    }
+
     private List<ProjectileData> activeProjectiles = new List<ProjectileData>();
+    private List<TrailFollowData> trails = new List<TrailFollowData>();
 
     void Start()
     {
@@ -47,7 +59,17 @@ public class PlanetsWeapon : Weapon
             projData.projectileObject.transform.RotateAround(transform.position, Vector3.forward, projData.speed * Time.deltaTime);
         }
 
-        if (statsUpdated == true)
+        // Atualiza posição dos dummies e trails
+        foreach (var trailData in trails)
+        {
+            if (trailData.trailObject != null && trailData.dummyFollower != null)
+            {
+                trailData.trailObject.position = trailData.dummyFollower.position;
+                trailData.trailObject.rotation = trailData.dummyFollower.rotation;
+            }
+        }
+
+        if (statsUpdated)
         {
             statsUpdated = false;
             SetStats();
@@ -60,7 +82,6 @@ public class PlanetsWeapon : Weapon
         spawnCounter = 0f;
         timeBetweenSpawn = stats[weaponLevel].timeBetweenAttacks;
 
-        // Ajusta a posição do holder com base na distância definida no nível atual
         if (fireballToSpawn != null)
         {
             fireballToSpawn.localPosition = new Vector3(stats[weaponLevel].holderDistance, fireballToSpawn.localPosition.y, fireballToSpawn.localPosition.z);
@@ -77,22 +98,53 @@ public class PlanetsWeapon : Weapon
             GameObject newProjectile = Instantiate(fireballToSpawn, fireballToSpawn.position, rotation, holder).gameObject;
             newProjectile.SetActive(true);
 
-            // Define currentLevel para o projétil específico
             EnemyDamageOrbiting projDamage = newProjectile.GetComponent<EnemyDamageOrbiting>();
             if (projDamage != null)
             {
                 projDamage.currentLevel = weaponLevel;
-                projDamage.UpdateSpriteForLevel();  // Atualiza sprite de acordo com o nível
+                projDamage.UpdateSpriteForLevel();
                 projDamage.damageAmount = stats[weaponLevel].damage;
                 projDamage.lifeTime = Mathf.Infinity;
             }
 
-            var projData = new ProjectileData(newProjectile, range: stats[weaponLevel].range,
-                                              damage: stats[weaponLevel].damage, speed: stats[weaponLevel].speed,
+            // Encontra visual chamado "Planets"
+            Transform planetVisual = newProjectile.transform.Find("Planets");
+            if (planetsTrailPrefab != null && planetVisual != null)
+            {
+                // Cria dummy para seguir o visual
+                GameObject dummy = new GameObject("TrailDummy");
+                dummy.transform.position = planetVisual.position;
+                dummy.transform.rotation = planetVisual.rotation;
+
+                // Cria trail
+                GameObject trail = Instantiate(planetsTrailPrefab, dummy.transform.position, dummy.transform.rotation);
+                trail.transform.SetParent(null);
+
+                // Adiciona para seguir com Update
+                trails.Add(new TrailFollowData(trail.transform, dummy.transform));
+
+                // Coroutine para manter dummy sincronizado
+                StartCoroutine(FollowVisual(planetVisual, dummy.transform));
+            }
+
+            var projData = new ProjectileData(newProjectile,
+                                              range: stats[weaponLevel].range,
+                                              damage: stats[weaponLevel].damage,
+                                              speed: stats[weaponLevel].speed,
                                               duration: Mathf.Infinity);
 
             activeProjectiles.Add(projData);
             newProjectile.transform.localScale = Vector3.one * projData.range;
+        }
+    }
+
+    private IEnumerator FollowVisual(Transform target, Transform follower)
+    {
+        while (target != null && follower != null)
+        {
+            follower.position = target.position;
+            follower.rotation = target.rotation;
+            yield return null;
         }
     }
 
@@ -120,6 +172,4 @@ public class PlanetsWeapon : Weapon
             }
         }
     }
-
-
 }

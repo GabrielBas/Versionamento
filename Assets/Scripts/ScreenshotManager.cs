@@ -15,6 +15,12 @@ public class FreeCameraScreenshotManager : MonoBehaviour
     public TMP_Text instructionsText; // Texto de instruções para o jogador
     public float cameraSpeed = 10f; // Velocidade de movimento da câmera
     public float zoomSpeed = 5f; // Velocidade de zoom
+    public float minZoom = 5f;  // Zoom mínimo (máxima aproximação)
+    public float maxZoom = 50f; // Zoom máximo (máximo afastamento)
+    public float minCameraSpeed = 2f;  // Velocidade mínima (com zoom próximo)
+    public float maxCameraSpeed = 10f; // Velocidade máxima (com zoom afastado)
+
+
 
     private bool isScreenshotMode = false; // Se o modo de screenshot foi ativado
     private Dictionary<GameObject, bool> hiddenObjects = new Dictionary<GameObject, bool>();
@@ -163,13 +169,24 @@ public class FreeCameraScreenshotManager : MonoBehaviour
 
     private void HandleZoom()
     {
-        // Zoom usando a roda do mouse
         float scroll = Input.GetAxis("Mouse ScrollWheel");
+
         if (scroll != 0 && screenshotCamera != null)
         {
             if (screenshotCamera.orthographic)
             {
-                screenshotCamera.orthographicSize = Mathf.Clamp(screenshotCamera.orthographicSize - scroll * zoomSpeed, 5f, 50f);
+                float oldSize = screenshotCamera.orthographicSize;
+                screenshotCamera.orthographicSize = Mathf.Clamp(
+                    oldSize - scroll * zoomSpeed,
+                    minZoom,
+                    maxZoom
+                );
+
+                // Atualiza dinamicamente o cameraSpeed baseado no zoom
+                float t = Mathf.InverseLerp(minZoom, maxZoom, screenshotCamera.orthographicSize);
+                cameraSpeed = Mathf.Lerp(minCameraSpeed, maxCameraSpeed, t);
+
+                Debug.Log($"Zoom atual: {screenshotCamera.orthographicSize} | CameraSpeed ajustado: {cameraSpeed}");
             }
             else
             {
@@ -177,6 +194,9 @@ public class FreeCameraScreenshotManager : MonoBehaviour
             }
         }
     }
+
+
+
 
     private void HideObjectsWithTag()
     {

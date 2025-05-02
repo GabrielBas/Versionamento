@@ -6,16 +6,29 @@ public class RainWeapon : Weapon
 {
     public EnemyDamage damager;
     public GameObject weaponPrefab; // Prefab da arma a ser lançada
+    public GameObject daggerTrailPrefab; // <<< Novo: Prefab do trail visual
 
     private float throwCounter;
 
-    // Start is called before the first frame update
+    private class TrailFollowData
+    {
+        public Transform trailObject;
+        public Transform targetToFollow;
+
+        public TrailFollowData(Transform trail, Transform target)
+        {
+            trailObject = trail;
+            targetToFollow = target;
+        }
+    }
+
+    private List<TrailFollowData> trails = new List<TrailFollowData>();
+
     void Start()
     {
         SetStats();
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (statsUpdated == true)
@@ -33,15 +46,38 @@ public class RainWeapon : Weapon
             {
                 if (weaponPrefab != null)
                 {
-                    // Se um prefab de arma estiver definido, instancie-o
                     GameObject thrownWeapon = Instantiate(weaponPrefab, transform.position, transform.rotation);
                     thrownWeapon.SetActive(true);
+
+                    // Instancia o trail e configura para seguir o objeto
+                    if (daggerTrailPrefab != null)
+                    {
+                        GameObject trail = Instantiate(daggerTrailPrefab, thrownWeapon.transform.position, thrownWeapon.transform.rotation);
+                        trails.Add(new TrailFollowData(trail.transform, thrownWeapon.transform));
+                    }
                 }
                 else
                 {
-                    // Caso contrário, use o comportamento padrão com damager
-                    Instantiate(damager, damager.transform.position, damager.transform.rotation).gameObject.SetActive(true);
+                    GameObject dmg = Instantiate(damager, damager.transform.position, damager.transform.rotation).gameObject;
+                    dmg.SetActive(true);
+
+                    // Instancia o trail para o damager se necessário
+                    if (daggerTrailPrefab != null)
+                    {
+                        GameObject trail = Instantiate(daggerTrailPrefab, dmg.transform.position, dmg.transform.rotation);
+                        trails.Add(new TrailFollowData(trail.transform, dmg.transform));
+                    }
                 }
+            }
+        }
+
+        // Atualiza a posição dos trails
+        for (int i = 0; i < trails.Count; i++)
+        {
+            if (trails[i].trailObject != null && trails[i].targetToFollow != null)
+            {
+                trails[i].trailObject.position = trails[i].targetToFollow.position;
+                trails[i].trailObject.rotation = trails[i].targetToFollow.rotation;
             }
         }
     }
@@ -50,9 +86,7 @@ public class RainWeapon : Weapon
     {
         damager.damageAmount = stats[weaponLevel].damage;
         damager.lifeTime = stats[weaponLevel].duration;
-
         damager.transform.localScale = Vector3.one * stats[weaponLevel].range;
-
         throwCounter = 0f;
     }
 }

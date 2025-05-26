@@ -49,13 +49,13 @@ public class SkinSelector : MonoBehaviour
         {
             selectButton.interactable = true;
             unlockButton.gameObject.SetActive(false);
-            priceText.text = "Desbloqueado";
+            priceText.text = "Unlocked";
         }
         else
         {
             selectButton.interactable = false;
             unlockButton.gameObject.SetActive(true);
-            priceText.text = "Preço: " + skinCosts[selectedSkinIndex] + " Coins";
+            priceText.text = skinCosts[selectedSkinIndex] + " Coins";
         }
 
         // Atualiza a cor do botão se for a skin selecionada

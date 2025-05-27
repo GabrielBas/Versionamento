@@ -63,7 +63,7 @@ public class UIController : MonoBehaviour
    
     public void UpdateCoins()
     {
-        coinText.text = "Coins: " + CoinController.instance.currentCoins;
+        coinText.text = " " + CoinController.instance.currentCoins;
     }
 
     public void PurchaseMoveSpeed()

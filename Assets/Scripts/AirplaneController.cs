@@ -1,63 +1,84 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class AirplaneController : MonoBehaviour
 {
-    public GameObject airplanePrefab; // Prefab do avião
-    public GameObject bombPrefab; // Prefab da bomba
-    public float speed = 5f; // Velocidade do avião
-    public float heightAbovePlayer = 10f; // Altura do avião acima do jogador
-    public float bombInterval = 3f; // Intervalo de tempo entre lançamentos de bombas
-    public float flyInterval = 300f; // Intervalo de tempo entre ativações do botão
-    public float bombDropHeight = -2f; // Altura de lançamento das bombas abaixo do avião
-    public float airplaneLifetime = 10f; // Tempo de vida do avião
+    public GameObject airplanePrefab;
+    public GameObject bombPrefab;
+    public GameObject airplaneActivatorPrefab;
 
-    public Button activateAirplaneButton; // Botão da UI para ativar o avião
+    public float speed = 5f;
+    public float heightAbovePlayer = 10f;
+    public float bombInterval = 3f;
+    public float flyInterval = 300f;
+    public float bombDropHeight = -2f;
+    public float airplaneLifetime = 10f;
+
+    public Vector2 spawnAreaMin;
+    public Vector2 spawnAreaMax;
 
     private GameObject player;
-    private bool isAirplaneAvailable = false; // Controla se o avião pode ser ativado
+    private bool isAirplaneAvailable = false;
+    private GameObject currentActivator;
 
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        activateAirplaneButton.gameObject.SetActive(false); // Botão inicialmente desativado
-        activateAirplaneButton.onClick.AddListener(ActivateAirplane); // Adiciona o evento ao botão
-        StartCoroutine(ManageAirplaneButtonRoutine());
+        StartCoroutine(SpawnAirplaneActivatorRoutine());
     }
 
-    private IEnumerator ManageAirplaneButtonRoutine()
+    private IEnumerator SpawnAirplaneActivatorRoutine()
     {
         while (true)
         {
-            yield return new WaitForSeconds(flyInterval);
-            isAirplaneAvailable = true; // Habilita a disponibilidade do avião
-            activateAirplaneButton.gameObject.SetActive(true); // Mostra o botão na UI
+            if (currentActivator == null)
+            {
+                yield return new WaitForSeconds(flyInterval);
+                isAirplaneAvailable = true;
+                SpawnActivatorObject();
+            }
+            yield return null;
         }
     }
 
-    private void ActivateAirplane()
+    private void SpawnActivatorObject()
+    {
+        Vector2 randomPos = new Vector2(
+            Random.Range(spawnAreaMin.x, spawnAreaMax.x),
+            Random.Range(spawnAreaMin.y, spawnAreaMax.y)
+        );
+
+        currentActivator = Instantiate(airplaneActivatorPrefab, randomPos, Quaternion.identity);
+    }
+
+    public void ActivateAirplane()
     {
         if (!isAirplaneAvailable || player == null || airplanePrefab == null) return;
 
-        // Desativa o botão e reseta a disponibilidade do avião
-        activateAirplaneButton.gameObject.SetActive(false);
         isAirplaneAvailable = false;
 
-        // Instancia o avião acima do jogador com rotação de -90° no eixo Z
-        Vector3 spawnPosition = new Vector3(player.transform.position.x - 50f, player.transform.position.y + heightAbovePlayer, 0);
-        Quaternion rotation = Quaternion.Euler(0f, 0f, -90f); // Define a rotação no eixo Z
-        GameObject airplaneInstance = Instantiate(airplanePrefab, spawnPosition, rotation);
+        if (currentActivator != null)
+        {
+            Destroy(currentActivator);
+            currentActivator = null;
+        }
 
-        // Ativa o avião e inicia o movimento
+        Vector3 spawnPosition = new Vector3(
+            player.transform.position.x - 50f,
+            player.transform.position.y + heightAbovePlayer,
+            0
+        );
+
+        Quaternion rotation = Quaternion.Euler(0f, 0f, -90f);
+        GameObject airplaneInstance = Instantiate(airplanePrefab, spawnPosition, rotation);
         airplaneInstance.SetActive(true);
+
         Rigidbody2D rb = airplaneInstance.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
             rb.velocity = new Vector2(speed, 0);
         }
 
-        // Inicia o lançamento de bombas e o timer para desativar o avião
         Coroutine dropBombRoutine = StartCoroutine(DropBombRoutine(airplaneInstance));
         StartCoroutine(DeactivateAirplaneAfterTime(airplaneInstance, dropBombRoutine));
     }

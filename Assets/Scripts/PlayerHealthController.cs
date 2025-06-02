@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +19,9 @@ public class PlayerHealthController : MonoBehaviour
     public GameObject deathEffect;
 
     public Button gameOverButton; // Botão para disparar o Game Over manualmente
+    public GameObject confirmationPanel; // Painel de confirmação
+    public Button yesButton; // Botão "Sim"
+    public Button noButton;  // Botão "Não"
 
     void Start()
     {
@@ -32,7 +34,22 @@ public class PlayerHealthController : MonoBehaviour
 
         if (gameOverButton != null)
         {
-            gameOverButton.onClick.AddListener(TriggerGameOver); // Associa o botão ao método TriggerGameOver
+            gameOverButton.onClick.AddListener(OpenConfirmationPanel);
+        }
+
+        if (yesButton != null)
+        {
+            yesButton.onClick.AddListener(ConfirmGameOver);
+        }
+
+        if (noButton != null)
+        {
+            noButton.onClick.AddListener(CancelGameOver);
+        }
+
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.SetActive(false);
         }
     }
 
@@ -45,7 +62,7 @@ public class PlayerHealthController : MonoBehaviour
             HandlePlayerDeath();
         }
 
-        healthSlider.value = currentHealth; // Atualiza a barra de vida
+        healthSlider.value = currentHealth;
     }
 
     public void Heal(float healAmount)
@@ -57,40 +74,54 @@ public class PlayerHealthController : MonoBehaviour
             currentHealth = maxHealth;
         }
 
-        healthSlider.value = currentHealth; // Atualiza a barra de vida na UI
+        healthSlider.value = currentHealth;
     }
 
-    private void TriggerGameOver()
+    private void OpenConfirmationPanel()
     {
-        currentHealth = 0; // Reduz a saúde a 0
-        HandlePlayerDeath(); // Lida com a morte do jogador
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.SetActive(true);
+            Time.timeScale = 0f; // Pausa o jogo
+        }
+    }
+
+    private void ConfirmGameOver()
+    {
+        
+        currentHealth = 0;
+        confirmationPanel.SetActive(false);
+        HandlePlayerDeath();
+    }
+
+    private void CancelGameOver()
+    {
+        if (confirmationPanel != null)
+        {
+            confirmationPanel.SetActive(false);
+            
+        }
     }
 
     private void HandlePlayerDeath()
     {
-        // Desanexar armas antes de desativar o Player
         foreach (Transform child in transform)
         {
-            if (child.CompareTag("Weapon")) // Certifique-se de que as armas tenham a tag "Weapon"
+            if (child.CompareTag("Weapon"))
             {
-                child.SetParent(null); // Remove a arma como filha do Player
-
-                // Para o Trail Renderer, mas mantém o rastro
+                child.SetParent(null);
                 TrailRenderer trail = child.GetComponentInChildren<TrailRenderer>();
                 if (trail != null)
                 {
-                    trail.emitting = false; // Para de emitir sem apagar o rastro
+                    trail.emitting = false;
                 }
             }
         }
 
-        // Desativa o jogador
         gameObject.SetActive(false);
 
-        // Finaliza o nível
         LevelManager.instance.EndLevel();
 
-        // Gera o efeito de morte
         Instantiate(deathEffect, transform.position, transform.rotation);
     }
 }

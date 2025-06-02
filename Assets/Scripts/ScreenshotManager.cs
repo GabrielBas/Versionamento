@@ -111,7 +111,7 @@ public class FreeCameraScreenshotManager : MonoBehaviour
             if (instructionsText != null)
             {
                 instructionsText.gameObject.SetActive(true);
-                instructionsText.text = "Pressione 'P' para capturar uma screenshot.\nPressione 'O' para sair do modo screenshot.\nPressione 'E' para ativar a Borracha";
+                instructionsText.text = "Press 'P' to take  a  screenshot.\nPress 'O' to exit print mode.\nPress 'E' to activate the eraser.";
             }
 
             Debug.Log("Modo Screenshot e Borracha ativado. Use as teclas de movimentação ou o mouse para ajustar a posição.");

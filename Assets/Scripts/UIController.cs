@@ -52,9 +52,10 @@ public class UIController : MonoBehaviour
         explvlSlider.maxValue = levelExp;
         explvlSlider.value = currentExp;
 
-        expLvlText.text ="Level " + currentlvl;
+        expLvlText.text = currentlvl.ToString();
+
     }
-    
+
     public void SkipLevelUp()
     {
         levelUpPanel.SetActive(false);

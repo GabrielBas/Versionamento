@@ -20,6 +20,7 @@ public class PlayerHealthController : MonoBehaviour
 
     public Button gameOverButton; // Botão para disparar o Game Over manualmente
     public GameObject confirmationPanel; // Painel de confirmação
+    public GameObject pauseScreen; // Painel de Pause
     public Button yesButton; // Botão "Sim"
     public Button noButton;  // Botão "Não"
 
@@ -91,7 +92,9 @@ public class PlayerHealthController : MonoBehaviour
         
         currentHealth = 0;
         confirmationPanel.SetActive(false);
+        pauseScreen.SetActive(false);
         HandlePlayerDeath();
+        Time.timeScale = 1f; // Despausa o jogo
     }
 
     private void CancelGameOver()

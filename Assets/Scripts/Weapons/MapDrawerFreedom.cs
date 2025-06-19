@@ -1,69 +1,77 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MapDrawerFreedom : MonoBehaviour
 {
-    public List<Camera> cameras;       // Lista de câmeras disponíveis
-    public GameObject trailPrefab;     // Prefab que contém o TrailRenderer
-    public float followSpeed = 10f;    // Velocidade para o cursor acompanhar o mouse
+    public List<Camera> cameras;
+    public GameObject trailPrefab;
+    public float followSpeed = 10f;
 
-    private bool isDrawing = false;    // Indica se está desenhando ou não
-    private GameObject currentTrail;   // Referência ao objeto instanciado do trail
+    public GameObject levelUpPanel; // ðŸ”¥ Painel de Level Up (ou qualquer UI que pause)
 
-    private Camera activeCamera;       // A câmera atualmente ativa
-    public Camera secondaryCamera;     // Câmera secundária para usar ao desativar o jogador
+    private bool isDrawing = false;
+    private GameObject currentTrail;
 
-    public GameObject player;          // Referência ao jogador
+    private Camera activeCamera;
+    public Camera secondaryCamera;
+
+    public GameObject player;
 
     void Start()
     {
         if (cameras == null || cameras.Count == 0)
         {
-            Debug.LogError("Nenhuma câmera atribuída! Adicione câmeras à lista no inspector.");
+            Debug.LogError("Nenhuma cÃ¢mera atribuÃ­da! Adicione cÃ¢meras Ã  lista no inspector.");
             return;
         }
 
-        // Define a câmera ativa como a primeira da lista
         activeCamera = cameras[0];
     }
 
     void Update()
     {
-        // Alterna o estado do desenho ao pressionar o botão direito do mouse
+        // ðŸ”¥ Verifica se o painel estÃ¡ ativo e forÃ§a desativar o desenho
+        if (levelUpPanel != null && levelUpPanel.activeSelf)
+        {
+            if (isDrawing)
+            {
+                StopDrawing();
+                isDrawing = false;
+            }
+            return; // Bloqueia qualquer tentativa de desenhar enquanto o painel estÃ¡ ativo
+        }
+
+        // Ativar ou desativar o desenho com o botÃ£o direito
         if (Input.GetMouseButtonDown(1))
         {
-            isDrawing = !isDrawing; // Alterna entre ativar e desativar o desenho
+            isDrawing = !isDrawing;
 
             if (isDrawing)
             {
-                StartNewTrail(); // Inicia um novo Trail
+                StartNewTrail();
             }
             else
             {
-                StopDrawing(); // Para de desenhar
+                StopDrawing();
             }
         }
 
-        // Atualiza a posição do objeto de desenho se estiver em modo de desenho
+        // Atualiza a posiÃ§Ã£o do cursor
         if (isDrawing && activeCamera != null)
         {
             Vector3 mousePos = Input.mousePosition;
-            mousePos.z = Mathf.Abs(activeCamera.transform.position.z); // Ajusta a profundidade para câmera 2D
+            mousePos.z = Mathf.Abs(activeCamera.transform.position.z);
             Vector3 worldPos = activeCamera.ScreenToWorldPoint(mousePos);
-            transform.position = worldPos;
 
-            // Move o objeto suavemente em direção ao cursor
             transform.position = Vector3.Lerp(transform.position, worldPos, followSpeed * Time.deltaTime);
 
-            // Atualiza a posição do rastro atual
             if (currentTrail != null)
             {
                 currentTrail.transform.position = transform.position;
             }
         }
 
-        // Verifica se o jogador foi desativado
         if (player != null && !player.activeSelf)
         {
             SwitchToSecondaryCamera();
@@ -74,26 +82,22 @@ public class MapDrawerFreedom : MonoBehaviour
     {
         if (trailPrefab == null)
         {
-            Debug.LogError("Trail Prefab não está atribuído!");
+            Debug.LogError("Trail Prefab nÃ£o estÃ¡ atribuÃ­do!");
             return;
         }
 
-        // Instancia o Prefab na posição atual do cursor
         currentTrail = Instantiate(trailPrefab, transform.position, Quaternion.identity);
-
-        // Aplica o valor de largura do TrailWidthManager ao novo TrailRenderer
         ApplyTrailWidthToNewTrail();
     }
 
     private void StopDrawing()
     {
-        // Para de desenhar no rastro atual
         if (currentTrail != null)
         {
             TrailRenderer trail = currentTrail.GetComponent<TrailRenderer>();
             if (trail != null)
             {
-                trail.emitting = false; // Para de emitir o rastro
+                trail.emitting = false;
             }
         }
     }
@@ -103,11 +107,10 @@ public class MapDrawerFreedom : MonoBehaviour
         if (secondaryCamera != null)
         {
             activeCamera = secondaryCamera;
-            //Debug.Log("Câmera trocada para a câmera secundária!");
         }
         else
         {
-            Debug.LogError("Câmera secundária não foi atribuída!");
+            Debug.LogError("CÃ¢mera secundÃ¡ria nÃ£o foi atribuÃ­da!");
         }
     }
 
@@ -120,10 +123,6 @@ public class MapDrawerFreedom : MonoBehaviour
         {
             trailRenderer.startWidth = TrailWidthManager.Instance.TrailWidth;
             trailRenderer.endWidth = TrailWidthManager.Instance.TrailWidth;
-
-            // Força a atualização do rastro
-            // trailRenderer.Clear();
-            Debug.Log("Espessura aplicada ao novo trail: " + trailRenderer.name);
         }
     }
 }

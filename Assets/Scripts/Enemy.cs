@@ -133,6 +133,8 @@ public class Enemy : MonoBehaviour
     {
         health -= damageToTake;
 
+        GetComponent<EnemyColorEffect>()?.FlashWhite(); // Efeito visual de dano
+
         if (health <= 0f)
         {
             Destroy(gameObject);

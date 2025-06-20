@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4582988393333720260}
   - component: {fileID: 1550331112689021806}
   - component: {fileID: 7622675648939379287}
+  - component: {fileID: 432753230067956119}
   m_Layer: 6
   m_Name: Enemy 1
   m_TagString: Enemy
@@ -35,7 +36,7 @@ Transform:
   m_Children:
   - {fileID: 9197473589074528839}
   m_Father: {fileID: 0}
-  m_RootOrder: 27
+  m_RootOrder: 28
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4528377896462124683
 SpriteRenderer:
@@ -198,6 +199,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &432753230067956119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053188954830687609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d3991adcaf08448ace814c93b6d6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whiteMaterial: {fileID: 2100000, guid: 4b4557cd1600a7745ab4322ff2a63489, type: 2}
 --- !u!1 &7586453364049266241
 GameObject:
   m_ObjectHideFlags: 0

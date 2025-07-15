@@ -8,23 +8,32 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject panelMainMenu;
     [SerializeField] private GameObject panelOptions;
     [SerializeField] private GameObject panelGallery;
-    [SerializeField] Animator transitionAnim;
+    [SerializeField] private GameObject transitionImage;
 
+    public Animator transitionAnim;
+
+
+    public void Update()
+    {
+        transitionImage.SetActive(false);
+    }
 
     public void StartGame()
     {
-        StartCoroutine(LoadGame());
-    }
-
-    IEnumerator LoadGame()
-    {
-        transitionAnim.SetTrigger("End");
-        yield return new WaitForSeconds(1);
-        SceneManager.LoadScene(1);
+        StartCoroutine(LoadScene());
         panelMainMenu.SetActive(false);
-        transitionAnim.SetTrigger("Start");
-
     }
+
+    IEnumerator LoadScene()
+    {
+        transitionImage.SetActive(true);
+        transitionAnim.SetTrigger("End");
+        yield return new WaitForSeconds(1.5f);
+        transitionImage.SetActive(false);
+        SceneManager.LoadScene(1);
+        
+    }
+
 
     public void Options()
     {

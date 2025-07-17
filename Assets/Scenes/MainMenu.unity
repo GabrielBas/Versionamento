@@ -433,6 +433,7 @@ GameObject:
   - component: {fileID: 72579086}
   - component: {fileID: 72579085}
   - component: {fileID: 72579087}
+  - component: {fileID: 72579088}
   m_Layer: 0
   m_Name: BGM Sound
   m_TagString: Untagged
@@ -451,7 +452,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 2894368427890679368, guid: 9d09086b134ea5b458cb1f542baf18fd, type: 2}
   m_audioClip: {fileID: 8300000, guid: 143fcd017c5bf7d4191403cd4eee5b0a, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 1
@@ -564,6 +565,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VolumeSlider: {fileID: 347241986}
+--- !u!114 &72579088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 72579084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 773f0fc686c6d79428e2ad9d2c064196, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &78407291
 GameObject:
   m_ObjectHideFlags: 0
@@ -1614,10 +1627,10 @@ RectTransform:
   m_Father: {fileID: 1213781340}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.9152, y: 2.8728}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &398642742
 MonoBehaviour:
@@ -7686,6 +7699,10 @@ PrefabInstance:
     - target: {fileID: 7701355515488484797, guid: bb8c3d745d0e32a46995f747aa9f11c4, type: 3}
       propertyPath: m_Name
       value: SceneTransitionManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7701355515488484797, guid: bb8c3d745d0e32a46995f747aa9f11c4, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

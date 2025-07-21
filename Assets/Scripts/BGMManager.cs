@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BGMManager : MonoBehaviour
 {
@@ -6,9 +7,11 @@ public class BGMManager : MonoBehaviour
 
     private AudioSource audioSource;
 
+    [Header("Cenas em que a BGM deve parar")]
+    [SerializeField] private string[] stopBgmScenes;
+
     void Awake()
     {
-        // Singleton: mantém uma instância única
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -24,24 +27,45 @@ public class BGMManager : MonoBehaviour
         {
             audioSource.Play();
         }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    public void StopBGM()
+    void OnDestroy()
     {
-        audioSource.Stop();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    public void PlayBGM()
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (!audioSource.isPlaying)
+        string currentScene = scene.name;
+
+        bool shouldStop = false;
+
+        foreach (string stopScene in stopBgmScenes)
         {
-            audioSource.Play();
+            if (stopScene == currentScene)
+            {
+                shouldStop = true;
+                break;
+            }
         }
-    }
 
-    public void ChangeBGM(AudioClip newClip)
-    {
-        audioSource.clip = newClip;
-        audioSource.Play();
+        if (shouldStop)
+        {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Pause();
+                Debug.Log($"BGM pausada na cena: {currentScene}");
+            }
+        }
+        else
+        {
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+                Debug.Log($"BGM retomada na cena: {currentScene}");
+            }
+        }
     }
 }

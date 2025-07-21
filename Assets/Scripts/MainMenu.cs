@@ -8,9 +8,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject panelMainMenu;
     [SerializeField] private GameObject panelOptions;
     [SerializeField] private GameObject panelGallery;
-    
+    [SerializeField] private GameObject panelControls;
 
-    
+
 
     //public void StartGame()
     //{
@@ -25,7 +25,7 @@ public class MainMenu : MonoBehaviour
     //    yield return new WaitForSeconds(1.5f);
     //    transitionImage.SetActive(false);
     //    SceneManager.LoadScene(1);
-        
+
     //}
 
 
@@ -50,6 +50,18 @@ public class MainMenu : MonoBehaviour
     public void CloseGallery()
     {
         panelGallery.SetActive(false);
+        panelMainMenu.SetActive(true);
+    }
+
+    public void Controls()
+    {
+        panelMainMenu.SetActive(false);
+        panelControls.SetActive(true);
+    }
+
+    public void CloseControls()
+    {
+        panelControls.SetActive(false);
         panelMainMenu.SetActive(true);
     }
 

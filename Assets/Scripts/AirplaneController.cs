@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class AirplaneController : MonoBehaviour
@@ -57,11 +57,8 @@ public class AirplaneController : MonoBehaviour
 
         isAirplaneAvailable = false;
 
-        if (currentActivator != null)
-        {
-            Destroy(currentActivator);
-            currentActivator = null;
-        }
+        // Agora quem destrói é o próprio Activator via animação.
+        currentActivator = null;
 
         Vector3 spawnPosition = new Vector3(
             player.transform.position.x - 50f,

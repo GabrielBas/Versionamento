@@ -24,6 +24,14 @@ public class PlayerHealthController : MonoBehaviour
     public Button yesButton; // Botão "Sim"
     public Button noButton;  // Botão "Não"
 
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CancelGameOver();
+        }
+    }
     void Start()
     {
         maxHealth = PlayerStatController.instance.health[0].value;

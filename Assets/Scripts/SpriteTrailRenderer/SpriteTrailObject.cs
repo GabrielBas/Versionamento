@@ -122,7 +122,7 @@ namespace SpriteTrailRenderer
             int targetLayer = LayerMask.NameToLayer(physicsLayerName);
             if (targetLayer == -1)
             {
-                Debug.LogWarning($"A physics layer '{physicsLayerName}' não existe! Verifique em Tags & Layers.");
+                //Debug.LogWarning($"A physics layer '{physicsLayerName}' não existe! Verifique em Tags & Layers.");
                 return;
             }
             SetLayerRecursively(gameObject, targetLayer);

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4582988393333720260}
   - component: {fileID: 1550331112689021806}
   - component: {fileID: 4404517364141688074}
+  - component: {fileID: 3061572163442560299}
   m_Layer: 6
   m_Name: Enemy 20
   m_TagString: Enemy
@@ -177,6 +178,8 @@ MonoBehaviour:
   coinDropRate: 0.5
   attackTriggerName: Attack
   deathEffect: {fileID: 8033929122623964790, guid: 6683ff81de4bbd94a8d1664fc35039e8, type: 3}
+  hitSound: {fileID: 8300000, guid: ad78001e088789c40b368e9262fcac11, type: 3}
+  deathSound: {fileID: 8300000, guid: eaaf5c2375715e748ba78e4a465aaf4d, type: 3}
 --- !u!95 &4404517364141688074
 Animator:
   serializedVersion: 5
@@ -198,6 +201,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3061572163442560299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5053188954830687609}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39d3991adcaf08448ace814c93b6d6c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  whiteMaterial: {fileID: 2100000, guid: 4b4557cd1600a7745ab4322ff2a63489, type: 2}
 --- !u!1 &7586453364049266241
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,8 +17,8 @@ public class Enemy : MonoBehaviour
     // PetAbility
     public Color originalColor; // Armazena a cor original do inimigo
 
-    private bool isConfused = false; // Se o inimigo está confuso
-    private float confuseCounter; // Contador de tempo para o efeito de confusão
+    private bool isConfused = false; // Se o inimigo estÃ¡ confuso
+    private float confuseCounter; // Contador de tempo para o efeito de confusÃ£o
 
     public float knockBackTime = .5f;
     private float knockBackCounter;
@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour
     public int coinValue = 1;
     public float coinDropRate = .5f;
 
-    private GameObject player; // O alvo padrão é o jogador
+    private GameObject player; // O alvo padrÃ£o Ã© o jogador
     private GameObject currentTarget; // Alvo atual (jogador ou outro inimigo)
     private Vector2 enemyDirection;
 
@@ -37,13 +37,29 @@ public class Enemy : MonoBehaviour
 
     public GameObject deathEffect;
 
+    [Header("Som de dano")]
+    public AudioClip hitSound;
+
+    [Header("Som de morte")]
+    public AudioClip deathSound;
+
+    private AudioSource audioSource;
+
+
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        currentTarget = player; // Define o alvo inicial como o jogador
+        currentTarget = player;
 
-        originalColor = sprite.color; // Armazena a cor original do sprite
+        originalColor = sprite.color;
+
+        // ðŸ”Š Inicializa AudioSource
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
     }
 
     // Update is called once per frame
@@ -62,7 +78,7 @@ public class Enemy : MonoBehaviour
                 sprite.flipX = true;
             }
 
-            // Ativa a animação de caminhada quando o inimigo está se movendo
+            // Ativa a animaÃ§Ã£o de caminhada quando o inimigo estÃ¡ se movendo
             if (!isConfused && knockBackCounter <= 0)
             {
                 animator.SetBool("IsWalking", true);
@@ -123,7 +139,7 @@ public class Enemy : MonoBehaviour
             if (enemyTarget != null)
             {
                 enemyTarget.TakeDamage(damage);
-                AttackAnimation(); // Executa a animação de ataque
+                AttackAnimation(); // Executa a animaÃ§Ã£o de ataque
                 hitCounter = hitWaitTime;
             }
         }
@@ -135,9 +151,24 @@ public class Enemy : MonoBehaviour
 
         GetComponent<EnemyColorEffect>()?.FlashWhite(); // Efeito visual de dano
 
+        // ðŸ”Š Toca som de impacto
+        if (hitSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(hitSound);
+        }
+
         if (health <= 0f)
         {
+            // ðŸ”Š Melhor forma: garante que o som toque mesmo que o Enemy seja destruÃ­do
+            if (deathSound != null)
+            {
+                AudioSource.PlayClipAtPoint(deathSound, transform.position);
+            }
+
+            Instantiate(deathEffect, transform.position, transform.rotation);
+
             Destroy(gameObject);
+
             ExperienceLevelController.instance.SpawnExp(transform.position, expToGive);
 
             if (Random.value <= coinDropRate)
@@ -146,11 +177,10 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        // Gera o efeito de morte
-        Instantiate(deathEffect, transform.position, transform.rotation);
 
         DamageNumberController.instance.SpawnDamage(damageToTake, transform.position);
     }
+
 
     public void TakeDamage(float damageToTake, bool shouldKnockBack)
     {
@@ -162,7 +192,7 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    // Pet Ability: Diminui a velocidade do inimigo por um período de tempo
+    // Pet Ability: Diminui a velocidade do inimigo por um perÃ­odo de tempo
     public void Slow(float duration, float slowPercentage, Color slowColor)
     {
         StartCoroutine(SlowCoroutine(duration, slowPercentage, slowColor));
@@ -174,13 +204,13 @@ public class Enemy : MonoBehaviour
         speed *= (1 - slowPercentage); // Diminui a velocidade
         SetColor(slowColor); // Altera a cor do inimigo
 
-        yield return new WaitForSeconds(duration); // Aguarda a duração do efeito
+        yield return new WaitForSeconds(duration); // Aguarda a duraÃ§Ã£o do efeito
 
         speed = originalSpeed; // Restaura a velocidade original
         ResetColor(); // Restaura a cor original
     }
 
-    // Métodos para alterar e restaurar a cor do inimigo
+    // MÃ©todos para alterar e restaurar a cor do inimigo
     public void SetColor(Color newColor)
     {
         sprite.color = newColor;
@@ -191,10 +221,10 @@ public class Enemy : MonoBehaviour
         sprite.color = originalColor;
     }
 
-    // Método para confundir o inimigo e forçá-lo a atacar outros inimigos
+    // MÃ©todo para confundir o inimigo e forÃ§Ã¡-lo a atacar outros inimigos
     public void Confuse(float duration)
     {
-        if (!isConfused) // Se o inimigo já está confuso, não faça nada
+        if (!isConfused) // Se o inimigo jÃ¡ estÃ¡ confuso, nÃ£o faÃ§a nada
         {
             StartCoroutine(ConfuseCoroutine(duration));
         }
@@ -206,13 +236,13 @@ public class Enemy : MonoBehaviour
         confuseCounter = duration;
 
         Color originalColor = sprite.color; // Armazena a cor original
-        sprite.color = Color.magenta; // Muda a cor para indicar confusão
+        sprite.color = Color.magenta; // Muda a cor para indicar confusÃ£o
 
         // Seleciona outro inimigo como alvo
         Enemy closestEnemy = FindClosestEnemy();
         if (closestEnemy != null)
         {
-            currentTarget = closestEnemy.gameObject; // Define o inimigo mais próximo como alvo
+            currentTarget = closestEnemy.gameObject; // Define o inimigo mais prÃ³ximo como alvo
         }
 
         while (confuseCounter > 0)
@@ -228,7 +258,7 @@ public class Enemy : MonoBehaviour
         currentTarget = player; // Redefine o alvo como o jogador
     }
 
-    // Método para encontrar o inimigo mais próximo usando a Tag
+    // MÃ©todo para encontrar o inimigo mais prÃ³ximo usando a Tag
     private Enemy FindClosestEnemy()
     {
         Enemy[] enemies = FindObjectsOfType<Enemy>();
@@ -251,13 +281,13 @@ public class Enemy : MonoBehaviour
         return closestEnemy;
     }
 
-    // Método para executar a animação de ataque
+    // MÃ©todo para executar a animaÃ§Ã£o de ataque
     private void AttackAnimation()
     {
         if (animator != null)
         {
             animator.SetTrigger("Attack");
-            animator.SetBool("isWalking", false); // Desativa a animação de caminhada durante o ataque
+            animator.SetBool("isWalking", false); // Desativa a animaÃ§Ã£o de caminhada durante o ataque
         }
     }
 }

@@ -14,6 +14,9 @@ public class CoinPickup : MonoBehaviour
 
     private Player player;
 
+    [Header("Som de coleta")]
+    public AudioClip pickupSound;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -49,6 +52,11 @@ public class CoinPickup : MonoBehaviour
         if (collision.tag == "Player")
         {
             CoinController.instance.AddCoins(coinAmount);
+
+            if (pickupSound != null)
+            {
+                AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+            }
 
             Destroy(gameObject);
 

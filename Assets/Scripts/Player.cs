@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -41,8 +41,22 @@ public class Player : MonoBehaviour
     // Assumption: This variable checks if the upgrade menu is active
     public bool levelUpPanel = false;
 
+    [Header("Som de passos")]
+    public AudioClip footstepSound;
+    public float footstepInterval = 0.4f; // intervalo entre os passos
+
+    private float footstepTimer = 0f;
+    private AudioSource audioSource;
+
+    [Header("Som de dash")]
+    public AudioClip dashSound;
+
+
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
+
         CleanWeaponLists();
 
         if (assignedWeapons.Count == 0)
@@ -90,6 +104,27 @@ public class Player : MonoBehaviour
 
             anim.SetBool("walking", playerDirection.sqrMagnitude > 0);
         }
+
+        if (playerDirection.sqrMagnitude > 0 && !isDashing)
+        {
+            footstepTimer -= Time.deltaTime;
+
+            if (footstepTimer <= 0f)
+            {
+                if (footstepSound != null && audioSource != null)
+                {
+                    audioSource.PlayOneShot(footstepSound);
+                }
+
+                footstepTimer = footstepInterval;
+            }
+        }
+        else
+        {
+            footstepTimer = 0f; // reinicia o timer se parar de andar
+        }
+
+
     }
 
     private void FixedUpdate()
@@ -99,7 +134,7 @@ public class Player : MonoBehaviour
             rb.MovePosition(rb.position + playerDirection.normalized * speed * Time.deltaTime);
         }
 
-        SFXManager.instance.PlaySFX(0);
+        //SFXManager.instance.PlaySFX(0);
     }
 
     private IEnumerator Dash()
@@ -110,6 +145,12 @@ public class Player : MonoBehaviour
 
         // Temporarily change the player's layer to ignore enemy collisions
         gameObject.layer = LayerMask.NameToLayer("PlayerDash");
+
+        // 👉 Toca o som de dash
+        if (dashSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(dashSound);
+        }
 
         Vector2 dashDirection = playerDirection.normalized;
 

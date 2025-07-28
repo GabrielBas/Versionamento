@@ -14,7 +14,10 @@ public class ExpPickup : MonoBehaviour
     private float checkCounter;
 
     private Player player;
-    
+
+    [Header("Som de coleta")]
+    public AudioClip pickupSound;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -50,6 +53,12 @@ public class ExpPickup : MonoBehaviour
         if(collision.tag == "Player")
         {
             ExperienceLevelController.instance.GetExp(expValue);
+
+            if (pickupSound != null)
+            {
+                AudioSource.PlayClipAtPoint(pickupSound, transform.position);
+            }
+
 
             Destroy(gameObject);
 

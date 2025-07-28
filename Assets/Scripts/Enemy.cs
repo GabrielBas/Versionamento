@@ -40,8 +40,8 @@ public class Enemy : MonoBehaviour
     [Header("Som de dano")]
     public AudioClip hitSound;
 
-    [Header("Som de morte")]
-    public AudioClip deathSound;
+    //[Header("Som de morte")]
+    //public AudioClip deathSound;
 
     private AudioSource audioSource;
 
@@ -160,10 +160,10 @@ public class Enemy : MonoBehaviour
         if (health <= 0f)
         {
             // 🔊 Melhor forma: garante que o som toque mesmo que o Enemy seja destruído
-            if (deathSound != null)
-            {
-                AudioSource.PlayClipAtPoint(deathSound, transform.position);
-            }
+            //if (deathSound != null)
+            //{
+            //    AudioSource.PlayClipAtPoint(deathSound, transform.position);
+            //}
 
             Instantiate(deathEffect, transform.position, transform.rotation);
 

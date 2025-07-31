@@ -1,7 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class MainMenu : MonoBehaviour
 {
@@ -10,41 +11,43 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject panelGallery;
     [SerializeField] private GameObject panelControls;
 
+    private PlayerInput playerInput;
 
+    public GameObject firstOptionButton, firstGalleryButton;
 
-    //public void StartGame()
-    //{
-    //    StartCoroutine(LoadScene());
-    //    panelMainMenu.SetActive(false);
-    //}
+    private void Awake()
+    {
+        // Busca o PlayerInput existente na cena
+        playerInput = FindObjectOfType<PlayerInput>();
 
-    //IEnumerator LoadScene()
-    //{
-    //    transitionImage.SetActive(true);
-    //    transitionAnim.SetTrigger("End");
-    //    yield return new WaitForSeconds(1.5f);
-    //    transitionImage.SetActive(false);
-    //    SceneManager.LoadScene(1);
-
-    //}
-
+        // Garante que o mapa de input inicial é o de UI
+        if (playerInput != null)
+        {
+            playerInput.SwitchCurrentActionMap("UI");
+        }
+    }
 
     public void Options()
     {
         panelMainMenu.SetActive(false);
         panelOptions.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstOptionButton);
     }
 
     public void CloseOptions()
     {
         panelOptions.SetActive(false);
         panelMainMenu.SetActive(true);
+        
     }
 
     public void Gallery()
     {
         panelMainMenu.SetActive(false);
         panelGallery.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstGalleryButton);
     }
 
     public void CloseGallery()
@@ -68,9 +71,6 @@ public class MainMenu : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-
         Debug.Log("I'm Quitting");
     }
-
-
 }

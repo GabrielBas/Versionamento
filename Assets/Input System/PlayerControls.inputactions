@@ -2,7 +2,7 @@
     "name": "PlayerControls",
     "maps": [
         {
-            "name": "Player",
+            "name": "Gameplay",
             "id": "8146abf9-9649-4bd1-a64a-127541dbbdba",
             "actions": [
                 {
@@ -406,6 +406,17 @@
                     "name": "",
                     "id": "18663e08-2ef3-4a67-a631-6a25eb6d65dc",
                     "path": "<Gamepad>/dpad",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3a06d385-d870-43a9-8a73-211efcc2cbde",
+                    "path": "<Gamepad>/leftStick",
                     "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",

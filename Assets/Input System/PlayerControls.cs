@@ -62,6 +62,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""MenuOpenClose"",
+                    ""type"": ""Button"",
+                    ""id"": ""db155cf3-c099-452b-821b-32f368a04e1d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -249,6 +258,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Gamepad"",
                     ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""10fb7e8d-7d11-421c-9ed5-31235268c425"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""KeyBoard&Mouse"",
+                    ""action"": ""MenuOpenClose"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""39a56967-f081-4f7f-a7f4-dab2d19b791e"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""MenuOpenClose"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -562,6 +593,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Gameplay_Dash = m_Gameplay.FindAction("Dash", throwIfNotFound: true);
         m_Gameplay_Draw = m_Gameplay.FindAction("Draw", throwIfNotFound: true);
         m_Gameplay_Zoom = m_Gameplay.FindAction("Zoom", throwIfNotFound: true);
+        m_Gameplay_MenuOpenClose = m_Gameplay.FindAction("MenuOpenClose", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -635,6 +667,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Dash;
     private readonly InputAction m_Gameplay_Draw;
     private readonly InputAction m_Gameplay_Zoom;
+    private readonly InputAction m_Gameplay_MenuOpenClose;
     public struct GameplayActions
     {
         private @PlayerControls m_Wrapper;
@@ -643,6 +676,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Dash => m_Wrapper.m_Gameplay_Dash;
         public InputAction @Draw => m_Wrapper.m_Gameplay_Draw;
         public InputAction @Zoom => m_Wrapper.m_Gameplay_Zoom;
+        public InputAction @MenuOpenClose => m_Wrapper.m_Gameplay_MenuOpenClose;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -664,6 +698,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
+            @MenuOpenClose.started += instance.OnMenuOpenClose;
+            @MenuOpenClose.performed += instance.OnMenuOpenClose;
+            @MenuOpenClose.canceled += instance.OnMenuOpenClose;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -680,6 +717,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
+            @MenuOpenClose.started -= instance.OnMenuOpenClose;
+            @MenuOpenClose.performed -= instance.OnMenuOpenClose;
+            @MenuOpenClose.canceled -= instance.OnMenuOpenClose;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -807,6 +847,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnDash(InputAction.CallbackContext context);
         void OnDraw(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
+        void OnMenuOpenClose(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

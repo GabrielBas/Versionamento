@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
@@ -38,12 +39,11 @@ public class Player : MonoBehaviour
 
     private int originalLayer;
 
-    // Assumption: This variable checks if the upgrade menu is active
     public bool levelUpPanel = false;
 
     [Header("Som de passos")]
     public AudioClip footstepSound;
-    public float footstepInterval = 0.4f; // intervalo entre os passos
+    public float footstepInterval = 0.4f;
 
     private float footstepTimer = 0f;
     private AudioSource audioSource;
@@ -51,11 +51,11 @@ public class Player : MonoBehaviour
     [Header("Som de dash")]
     public AudioClip dashSound;
 
+    private PlayerInput playerInput;
 
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-
 
         CleanWeaponLists();
 
@@ -68,31 +68,13 @@ public class Player : MonoBehaviour
         pickupRange = PlayerStatController.instance.pickupRange[0].value;
         maxWeapons = Mathf.RoundToInt(PlayerStatController.instance.maxWeapons[0].value);
 
-        // Save the player's original layer
         originalLayer = gameObject.layer;
     }
 
     void Update()
     {
-        playerDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-
-        // Handle dash input
-        if (canDash && Input.GetKeyDown(KeyCode.Space) && !levelUpPanel)
-        {
-            if (StaminaBar.instance.staminaBar.value >= dashStaminaCost)
-            {
-                StaminaBar.instance.UseStamina(dashStaminaCost);
-                StartCoroutine(Dash());
-            }
-            else
-            {
-                Debug.Log("Not enough stamina to dash");
-            }
-        }
-
         if (!isDashing)
         {
-            // Handle player direction and animation
             if (playerDirection.x > 0)
             {
                 sprite.flipX = false;
@@ -121,10 +103,8 @@ public class Player : MonoBehaviour
         }
         else
         {
-            footstepTimer = 0f; // reinicia o timer se parar de andar
+            footstepTimer = 0f;
         }
-
-
     }
 
     private void FixedUpdate()
@@ -133,26 +113,20 @@ public class Player : MonoBehaviour
         {
             rb.MovePosition(rb.position + playerDirection.normalized * speed * Time.deltaTime);
         }
-
-        //SFXManager.instance.PlaySFX(0);
     }
 
-    private IEnumerator Dash()
+    private IEnumerator Dash(Vector2 dashDirection)
     {
         canDash = false;
         isDashing = true;
         dashTime = dashDuration;
 
-        // Temporarily change the player's layer to ignore enemy collisions
         gameObject.layer = LayerMask.NameToLayer("PlayerDash");
 
-        // 👉 Toca o som de dash
         if (dashSound != null && audioSource != null)
         {
             audioSource.PlayOneShot(dashSound);
         }
-
-        Vector2 dashDirection = playerDirection.normalized;
 
         while (dashTime > 0)
         {
@@ -161,13 +135,33 @@ public class Player : MonoBehaviour
             yield return null;
         }
 
-        // Revert the player's layer back to the original layer
         gameObject.layer = originalLayer;
 
         isDashing = false;
 
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+    }
+
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        playerDirection = context.ReadValue<Vector2>();
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (!context.started || !canDash || levelUpPanel || isDashing)
+            return;
+
+        if (StaminaBar.instance.staminaBar.value >= dashStaminaCost)
+        {
+            StaminaBar.instance.UseStamina(dashStaminaCost);
+            StartCoroutine(Dash(playerDirection.normalized));
+        }
+        else
+        {
+            Debug.Log("Not enough stamina to dash");
+        }
     }
 
     private void CleanWeaponLists()
@@ -183,10 +177,9 @@ public class Player : MonoBehaviour
         }
     }
 
-
     public void AddWeapon(int weaponNumber)
     {
-        CleanWeaponLists(); // Garante que as listas estejam limpas
+        CleanWeaponLists();
 
         if (weaponNumber < unassignedWeapons.Count && unassignedWeapons[weaponNumber] != null)
         {
@@ -200,7 +193,6 @@ public class Player : MonoBehaviour
             }
         }
     }
-
 
     public void AddWeapon(Weapon weaponToAdd)
     {
@@ -234,8 +226,6 @@ public class Player : MonoBehaviour
         CleanWeaponLists();
     }
 
-
-
     public void UpdateWeaponIconsUI()
     {
         if (WeaponIconsManager.instance != null)
@@ -243,6 +233,4 @@ public class Player : MonoBehaviour
             WeaponIconsManager.instance.UpdateWeaponIcons();
         }
     }
-
-
 }

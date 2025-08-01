@@ -40,6 +40,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "MenuOpenClose",
+                    "type": "Button",
+                    "id": "db155cf3-c099-452b-821b-32f368a04e1d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -227,6 +236,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "10fb7e8d-7d11-421c-9ed5-31235268c425",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyBoard&Mouse",
+                    "action": "MenuOpenClose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "39a56967-f081-4f7f-a7f4-dab2d19b791e",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "MenuOpenClose",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

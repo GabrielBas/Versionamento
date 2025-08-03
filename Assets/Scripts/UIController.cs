@@ -14,18 +14,18 @@ public class UIController : MonoBehaviour
 
     public GameObject Player;
 
-    public GameObject pauseFirstButton; // ← novo campo para selecionar botão no pause
+    public GameObject pauseFirstButton; // Botão inicial no pause
+    public GameObject levelEndFirstButton; // 🔴 Botão inicial no levelEndScreen
 
-    private InputAction pauseAction; // ← novo campo para detectar botão Start do controle
+    private InputAction pauseAction;
 
     private void Awake()
     {
         instance = this;
 
-        // Cria InputAction manualmente
         pauseAction = new InputAction(type: InputActionType.Button, binding: "<Gamepad>/start");
-        pauseAction.Enable(); // Habilita o input
-        pauseAction.performed += ctx => PauseUnpause(); // Conecta ao método Pause
+        pauseAction.Enable();
+        pauseAction.performed += ctx => PauseUnpause();
     }
 
     private void OnDestroy()
@@ -53,7 +53,6 @@ public class UIController : MonoBehaviour
 
     void Update()
     {
-        // Teclado (ESC)
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             PauseUnpause();
@@ -134,7 +133,6 @@ public class UIController : MonoBehaviour
             Time.timeScale = 0f;
             Player.SetActive(false);
 
-            // Selecionar o botão inicial
             if (pauseFirstButton != null)
             {
                 EventSystem.current.SetSelectedGameObject(null);
@@ -150,8 +148,34 @@ public class UIController : MonoBehaviour
                 Player.SetActive(true);
             }
 
-            // Limpa seleção
             EventSystem.current.SetSelectedGameObject(null);
+        }
+    }
+
+    // ✅ Corrigido com Coroutine
+    public void ShowLevelEndScreen(float finalTime)
+    {
+        levelEndScreen.SetActive(true);
+        endTimeText.text = "Time: " + Mathf.FloorToInt(finalTime / 60f) + ":" + Mathf.FloorToInt(finalTime % 60f).ToString("00");
+
+        // 🔁 Força exibição do cursor se foi teclado/mouse
+        if (Mouse.current != null && Mouse.current.wasUpdatedThisFrame)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        StartCoroutine(SelectLevelEndButtonNextFrame());
+    }
+
+    private IEnumerator SelectLevelEndButtonNextFrame()
+    {
+        yield return null;
+
+        if (levelEndFirstButton != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
         }
     }
 }

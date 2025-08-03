@@ -1,6 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class PlayerHealthController : MonoBehaviour
 {
@@ -18,12 +19,12 @@ public class PlayerHealthController : MonoBehaviour
 
     public GameObject deathEffect;
 
-    public Button gameOverButton; // Bot�o para disparar o Game Over manualmente
-    public GameObject confirmationPanel; // Painel de confirma��o
+    public Button gameOverButton; // Botão para disparar o Game Over manualmente
+    public GameObject confirmationPanel; // Painel de confirmação
     public GameObject pauseScreen; // Painel de Pause
-    public Button yesButton; // Bot�o "Sim"
-    public Button noButton;  // Bot�o "N�o"
-
+    public Button yesButton; // Botão "Sim"
+    public Button noButton;  // Botão "Não"
+    public Button resumeButton; // ✅ Botão principal do pauseScreen
 
     void Update()
     {
@@ -32,6 +33,7 @@ public class PlayerHealthController : MonoBehaviour
             CancelGameOver();
         }
     }
+
     void Start()
     {
         maxHealth = PlayerStatController.instance.health[0].value;
@@ -92,15 +94,34 @@ public class PlayerHealthController : MonoBehaviour
         {
             confirmationPanel.SetActive(true);
             Time.timeScale = 0f; // Pausa o jogo
+
+            // 🔴 Desativa o pauseScreen para impedir navegação indevida
+            if (pauseScreen != null)
+            {
+                pauseScreen.SetActive(false);
+            }
+
+            // 🔁 Limpa o botão previamente selecionado
+            EventSystem.current.SetSelectedGameObject(null);
+
+            // ✅ Seleciona o botão para o controle funcionar corretamente
+            if (noButton != null)
+            {
+                EventSystem.current.SetSelectedGameObject(noButton.gameObject);
+            }
         }
     }
 
     private void ConfirmGameOver()
     {
-        
         currentHealth = 0;
         confirmationPanel.SetActive(false);
-        pauseScreen.SetActive(false);
+
+        if (pauseScreen != null)
+        {
+            pauseScreen.SetActive(false);
+        }
+
         HandlePlayerDeath();
         Time.timeScale = 1f; // Despausa o jogo
     }
@@ -110,7 +131,20 @@ public class PlayerHealthController : MonoBehaviour
         if (confirmationPanel != null)
         {
             confirmationPanel.SetActive(false);
-            
+        }
+
+        // 🔁 Reativa o pauseScreen se ele estava ativo antes
+        if (pauseScreen != null)
+        {
+            pauseScreen.SetActive(true);
+        }
+
+        // 🔁 Limpa e define o botão selecionado para funcionar com controle
+        EventSystem.current.SetSelectedGameObject(null);
+
+        if (resumeButton != null)
+        {
+            EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
         }
     }
 

@@ -1,56 +1,56 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem; // Novo sistema de Input
 
 public class MapDrawer : MonoBehaviour
 {
-    private TrailRenderer trail;               // Referência ao Trail Renderer
-    private bool isDrawing = false;            // Indica se está desenhando ou não
+    private TrailRenderer trail;
+    private bool isDrawing = false;
 
-    private static List<MapDrawer> allMapDrawers = new List<MapDrawer>(); // Lista de todas as instâncias de MapDrawer
+    private static List<MapDrawer> allMapDrawers = new List<MapDrawer>();
+
+    // Ação de input combinada (mouse e controle)
+    private InputAction drawAction;
 
     void Awake()
     {
-        // Adiciona esta instância à lista ao ser criada
         allMapDrawers.Add(this);
+
+        // Criar ação de input
+        drawAction = new InputAction(type: InputActionType.Button, binding: "<Mouse>/rightButton");
+        drawAction.AddBinding("<Gamepad>/buttonSouth"); // botão X (Xbox) ou bolinha (PS)
+        drawAction.Enable();
     }
 
     void OnDestroy()
     {
-        // Remove esta instância da lista quando destruída
         allMapDrawers.Remove(this);
+        drawAction.Disable();
     }
 
     void Start()
     {
         trail = GetComponent<TrailRenderer>();
-        trail.emitting = false; // Inicializa o Trail Renderer desativado
+        trail.emitting = false;
     }
 
     void Update()
     {
-        // Detecta o clique do botão direito para alternar o desenho em todas as instâncias
-        if (Input.GetMouseButtonDown(1))  // Botão direito do mouse
+        // Se pressionou botão do mouse ou botão do controle
+        if (drawAction.WasPressedThisFrame())
         {
-            isDrawing = !isDrawing;  // Alterna o estado de desenho
-            ToggleDrawingForAll(isDrawing); // Ativa/desativa todos os clones
+            isDrawing = !isDrawing;
+            ToggleDrawingForAll(isDrawing);
         }
     }
 
-    // Método para ativar/desativar o Trail Renderer para todas as instâncias
     private static void ToggleDrawingForAll(bool shouldDraw)
     {
         foreach (var mapDrawer in allMapDrawers)
         {
-            if (shouldDraw)
+            if (mapDrawer != null && mapDrawer.trail != null)
             {
-                // Inicia o desenho em todas as instâncias
-                //mapDrawer.trail.Clear();  // Limpa o rastro anterior para iniciar um novo
-                mapDrawer.trail.emitting = true;
-            }
-            else
-            {
-                // Para o desenho em todas as instâncias
-                mapDrawer.trail.emitting = false;
+                mapDrawer.trail.emitting = shouldDraw;
             }
         }
     }

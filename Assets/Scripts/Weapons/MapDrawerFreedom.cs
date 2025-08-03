@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class MapDrawerFreedom : MonoBehaviour
 {
@@ -8,30 +9,53 @@ public class MapDrawerFreedom : MonoBehaviour
     public GameObject trailPrefab;
     public float followSpeed = 10f;
 
-    public GameObject levelUpPanel; // 🔥 Painel de Level Up (ou qualquer UI que pause)
+    public GameObject levelUpPanel;
+    public GameObject player;
+    public Camera secondaryCamera;
 
     private bool isDrawing = false;
     private GameObject currentTrail;
-
     private Camera activeCamera;
-    public Camera secondaryCamera;
 
-    public GameObject player;
+    private InputAction drawAction;
+    private InputAction rightStickAction;
+
+    private Vector2 virtualPointerPos;
+    public float rightStickSensitivity = 1000f;
+
+    private enum InputMode { Mouse, Gamepad }
+    private InputMode currentInputMode = InputMode.Mouse;
+
+    void Awake()
+    {
+        drawAction = new InputAction(type: InputActionType.Button, binding: "<Mouse>/rightButton");
+        drawAction.AddBinding("<Gamepad>/buttonSouth");
+        drawAction.Enable();
+
+        rightStickAction = new InputAction(type: InputActionType.Value, binding: "<Gamepad>/rightStick");
+        rightStickAction.Enable();
+    }
+
+    void OnDestroy()
+    {
+        drawAction.Disable();
+        rightStickAction.Disable();
+    }
 
     void Start()
     {
         if (cameras == null || cameras.Count == 0)
         {
-            Debug.LogError("Nenhuma câmera atribuída! Adicione câmeras à lista no inspector.");
+            Debug.LogError("Nenhuma câmera atribuída!");
             return;
         }
 
         activeCamera = cameras[0];
+        virtualPointerPos = new Vector2(Screen.width / 2f, Screen.height / 2f);
     }
 
     void Update()
     {
-        // 🔥 Verifica se o painel está ativo e força desativar o desenho
         if (levelUpPanel != null && levelUpPanel.activeSelf)
         {
             if (isDrawing)
@@ -39,43 +63,59 @@ public class MapDrawerFreedom : MonoBehaviour
                 StopDrawing();
                 isDrawing = false;
             }
-            return; // Bloqueia qualquer tentativa de desenhar enquanto o painel está ativo
+            return;
         }
 
-        // Ativar ou desativar o desenho com o botão direito
-        if (Input.GetMouseButtonDown(1))
+        if (drawAction.WasPressedThisFrame())
         {
             isDrawing = !isDrawing;
-
-            if (isDrawing)
-            {
-                StartNewTrail();
-            }
-            else
-            {
-                StopDrawing();
-            }
+            if (isDrawing) StartNewTrail();
+            else StopDrawing();
         }
 
-        // Atualiza a posição do cursor
+        // Detecta tipo de entrada atual
+        Vector2 stickInput = rightStickAction.ReadValue<Vector2>();
+        bool isUsingGamepad = stickInput.magnitude > 0.1f;
+
+        if (isUsingGamepad)
+            currentInputMode = InputMode.Gamepad;
+        else if (Mouse.current != null && Mouse.current.delta.ReadValue().sqrMagnitude > 0f)
+            currentInputMode = InputMode.Mouse;
+
+        // Atualiza posição do cursor virtual
         if (isDrawing && activeCamera != null)
         {
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = Mathf.Abs(activeCamera.transform.position.z);
-            Vector3 worldPos = activeCamera.ScreenToWorldPoint(mousePos);
+            if (currentInputMode == InputMode.Gamepad)
+            {
+                virtualPointerPos += stickInput * rightStickSensitivity * Time.deltaTime;
+                virtualPointerPos = ClampToScreenBounds(virtualPointerPos);
+            }
+            else if (currentInputMode == InputMode.Mouse)
+            {
+                virtualPointerPos = Mouse.current.position.ReadValue();
+            }
 
-            transform.position = Vector3.Lerp(transform.position, worldPos, followSpeed * Time.deltaTime);
+            Vector3 pointerScreen = new Vector3(virtualPointerPos.x, virtualPointerPos.y, Mathf.Abs(activeCamera.transform.position.z));
+            Vector3 pointerWorld = activeCamera.ScreenToWorldPoint(pointerScreen);
+
+            transform.position = Vector3.Lerp(transform.position, pointerWorld, followSpeed * Time.deltaTime);
 
             if (currentTrail != null)
-            {
                 currentTrail.transform.position = transform.position;
-            }
         }
 
         if (player != null && !player.activeSelf)
         {
             SwitchToSecondaryCamera();
         }
+    }
+
+    private Vector2 ClampToScreenBounds(Vector2 pos)
+    {
+        return new Vector2(
+            Mathf.Clamp(pos.x, 0, Screen.width),
+            Mathf.Clamp(pos.y, 0, Screen.height)
+        );
     }
 
     private void StartNewTrail()
@@ -96,9 +136,7 @@ public class MapDrawerFreedom : MonoBehaviour
         {
             TrailRenderer trail = currentTrail.GetComponent<TrailRenderer>();
             if (trail != null)
-            {
                 trail.emitting = false;
-            }
         }
     }
 
@@ -110,7 +148,7 @@ public class MapDrawerFreedom : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Câmera secundária não foi atribuída!");
+            Debug.LogError("Câmera secundária não atribuída!");
         }
     }
 
@@ -121,8 +159,9 @@ public class MapDrawerFreedom : MonoBehaviour
         TrailRenderer trailRenderer = currentTrail.GetComponent<TrailRenderer>();
         if (trailRenderer != null)
         {
-            trailRenderer.startWidth = TrailWidthManager.Instance.TrailWidth;
-            trailRenderer.endWidth = TrailWidthManager.Instance.TrailWidth;
+            float width = TrailWidthManager.Instance.TrailWidth;
+            trailRenderer.startWidth = width;
+            trailRenderer.endWidth = width;
         }
     }
 }

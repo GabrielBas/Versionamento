@@ -30,12 +30,18 @@ public class InputDeviceDetector : MonoBehaviour
             Debug.Log("🔁 Switching to Gamepad");
             playerInput.SwitchCurrentControlScheme("Gamepad", Gamepad.current);
             currentScheme = "Gamepad";
+
+            Cursor.visible = false;              // Oculta o cursor
+            Cursor.lockState = CursorLockMode.Locked;  // (opcional) bloqueia o cursor no centro
         }
         else if ((device is Keyboard || device is Mouse) && currentScheme != "Keyboard&Mouse")
         {
             Debug.Log("🔁 Switching to Keyboard&Mouse");
             playerInput.SwitchCurrentControlScheme("Keyboard&Mouse", Keyboard.current, Mouse.current);
             currentScheme = "Keyboard&Mouse";
+
+            Cursor.visible = true;               // Mostra o cursor
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 }

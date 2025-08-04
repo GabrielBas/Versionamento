@@ -14,25 +14,10 @@ public class UIController : MonoBehaviour
 
     public GameObject Player;
 
-    public GameObject pauseFirstButton; // Botão inicial no pause
-    public GameObject levelEndFirstButton; // 🔴 Botão inicial no levelEndScreen
+    public GameObject pauseFirstButton;
+    public GameObject levelEndFirstButton;
 
     private InputAction pauseAction;
-
-    private void Awake()
-    {
-        instance = this;
-
-        pauseAction = new InputAction(type: InputActionType.Button, binding: "<Gamepad>/start");
-        pauseAction.Enable();
-        pauseAction.performed += ctx => PauseUnpause();
-    }
-
-    private void OnDestroy()
-    {
-        pauseAction.Disable();
-        pauseAction.performed -= ctx => PauseUnpause();
-    }
 
     public Slider explvlSlider;
     public TMP_Text expLvlText;
@@ -51,11 +36,61 @@ public class UIController : MonoBehaviour
 
     public GameObject pauseScreen;
 
+    private void Awake()
+    {
+        instance = this;
+
+        pauseAction = new InputAction(type: InputActionType.Button, binding: "<Gamepad>/start");
+        pauseAction.Enable();
+        pauseAction.performed += PauseAction_performed;
+    }
+
+    private void OnDestroy()
+    {
+        pauseAction.performed -= PauseAction_performed;
+        pauseAction.Disable();
+    }
+
+    private void PauseAction_performed(InputAction.CallbackContext context)
+    {
+        PauseUnpause();
+    }
+
     void Update()
     {
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             PauseUnpause();
+        }
+    }
+
+    public void PauseUnpause()
+    {
+        // ✅ Impede abrir pause se estiver no level end
+        if (levelEndScreen.activeSelf) return;
+
+        if (!pauseScreen.activeSelf)
+        {
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0f;
+            Player.SetActive(false);
+
+            if (pauseFirstButton != null)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+                EventSystem.current.SetSelectedGameObject(pauseFirstButton);
+            }
+        }
+        else
+        {
+            pauseScreen.SetActive(false);
+            if (!levelUpPanel.activeSelf)
+            {
+                Time.timeScale = 1f;
+                Player.SetActive(true);
+            }
+
+            EventSystem.current.SetSelectedGameObject(null);
         }
     }
 
@@ -110,12 +145,14 @@ public class UIController : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        pauseAction.Enable(); // reativa o pause ao sair do levelEnd
         SceneManager.LoadScene(0);
         Time.timeScale = 1f;
     }
 
     public void Restart()
     {
+        pauseAction.Enable(); // reativa o pause ao reiniciar
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Time.timeScale = 1f;
     }
@@ -125,57 +162,53 @@ public class UIController : MonoBehaviour
         Application.Quit();
     }
 
-    public void PauseUnpause()
-    {
-        if (pauseScreen.activeSelf == false)
-        {
-            pauseScreen.SetActive(true);
-            Time.timeScale = 0f;
-            Player.SetActive(false);
-
-            if (pauseFirstButton != null)
-            {
-                EventSystem.current.SetSelectedGameObject(null);
-                EventSystem.current.SetSelectedGameObject(pauseFirstButton);
-            }
-        }
-        else
-        {
-            pauseScreen.SetActive(false);
-            if (levelUpPanel.activeSelf == false)
-            {
-                Time.timeScale = 1f;
-                Player.SetActive(true);
-            }
-
-            EventSystem.current.SetSelectedGameObject(null);
-        }
-    }
-
-    // ✅ Corrigido com Coroutine
+    // ✅ Correção: ativa gamepad e cursor corretamente
     public void ShowLevelEndScreen(float finalTime)
     {
         levelEndScreen.SetActive(true);
         endTimeText.text = "Time: " + Mathf.FloorToInt(finalTime / 60f) + ":" + Mathf.FloorToInt(finalTime % 60f).ToString("00");
 
-        // 🔁 Força exibição do cursor se foi teclado/mouse
-        if (Mouse.current != null && Mouse.current.wasUpdatedThisFrame)
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
+        // Detecta mouse
+        bool isMouse = Mouse.current != null && Mouse.current.wasUpdatedThisFrame;
+
+        Cursor.visible = isMouse;
+        Cursor.lockState = isMouse ? CursorLockMode.None : CursorLockMode.Locked;
+
+        // Desativa pausa enquanto está no painel de fim
+        pauseAction.Disable();
 
         StartCoroutine(SelectLevelEndButtonNextFrame());
     }
 
     private IEnumerator SelectLevelEndButtonNextFrame()
+{
+    yield return null;
+
+    if (levelEndFirstButton != null && levelEndFirstButton.activeInHierarchy)
     {
+        // 🔁 Reset seleção
+        EventSystem.current.SetSelectedGameObject(null);
         yield return null;
 
-        if (levelEndFirstButton != null)
+        // ✅ Força foco visual + navegação
+        Button button = levelEndFirstButton.GetComponent<Button>();
+        if (button != null)
         {
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
+            button.Select(); // força foco visual
+        }
+
+        EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
+
+        Debug.Log("Selecionado: " + EventSystem.current.currentSelectedGameObject?.name);
+
+        // ✅ Garante pareamento com controle
+        if (Gamepad.current != null)
+        {
+            InputUser.PerformPairingWithDevice(Gamepad.current);
+            InputSystem.Update();
         }
     }
+}
+
+
 }

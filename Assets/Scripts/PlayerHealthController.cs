@@ -124,6 +124,7 @@ public class PlayerHealthController : MonoBehaviour
 
         HandlePlayerDeath();
         Time.timeScale = 1f; // Despausa o jogo
+        
     }
 
     private void CancelGameOver()

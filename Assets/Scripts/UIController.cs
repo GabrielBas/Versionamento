@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +12,7 @@ public class UIController : MonoBehaviour
     public static UIController instance;
 
     public GameObject Player;
+    private PlayerInput playerInput; // ✅ Referência separada
 
     public GameObject pauseFirstButton;
     public GameObject levelEndFirstButton;
@@ -43,6 +43,12 @@ public class UIController : MonoBehaviour
         pauseAction = new InputAction(type: InputActionType.Button, binding: "<Gamepad>/start");
         pauseAction.Enable();
         pauseAction.performed += PauseAction_performed;
+
+        // ✅ Pega referência do PlayerInput antes de desativar o Player
+        if (Player != null)
+        {
+            playerInput = Player.GetComponent<PlayerInput>();
+        }
     }
 
     private void OnDestroy()
@@ -66,14 +72,15 @@ public class UIController : MonoBehaviour
 
     public void PauseUnpause()
     {
-        // ✅ Impede abrir pause se estiver no level end
         if (levelEndScreen.activeSelf) return;
 
         if (!pauseScreen.activeSelf)
         {
             pauseScreen.SetActive(true);
             Time.timeScale = 0f;
-            Player.SetActive(false);
+
+            if (Player != null) Player.SetActive(false); // desativa só visualmente
+            if (playerInput != null) playerInput.enabled = true; // ✅ mantém controle ativo
 
             if (pauseFirstButton != null)
             {
@@ -87,10 +94,11 @@ public class UIController : MonoBehaviour
             if (!levelUpPanel.activeSelf)
             {
                 Time.timeScale = 1f;
-                Player.SetActive(true);
+                if (Player != null) Player.SetActive(true);
             }
 
             EventSystem.current.SetSelectedGameObject(null);
+
         }
     }
 
@@ -145,14 +153,14 @@ public class UIController : MonoBehaviour
 
     public void GoToMainMenu()
     {
-        pauseAction.Enable(); // reativa o pause ao sair do levelEnd
+        pauseAction.Enable();
         SceneManager.LoadScene(0);
         Time.timeScale = 1f;
     }
 
     public void Restart()
     {
-        pauseAction.Enable(); // reativa o pause ao reiniciar
+        pauseAction.Enable();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         Time.timeScale = 1f;
     }
@@ -162,53 +170,53 @@ public class UIController : MonoBehaviour
         Application.Quit();
     }
 
-    // ✅ Correção: ativa gamepad e cursor corretamente
     public void ShowLevelEndScreen(float finalTime)
     {
         levelEndScreen.SetActive(true);
-        endTimeText.text = "Time: " + Mathf.FloorToInt(finalTime / 60f) + ":" + Mathf.FloorToInt(finalTime % 60f).ToString("00");
 
-        // Detecta mouse
+        endTimeText.text = "Time: " + Mathf.FloorToInt(finalTime / 60f) + ":" +
+                           Mathf.FloorToInt(finalTime % 60f).ToString("00");
+
+        // Cursor só se mouse foi usado
         bool isMouse = Mouse.current != null && Mouse.current.wasUpdatedThisFrame;
-
         Cursor.visible = isMouse;
         Cursor.lockState = isMouse ? CursorLockMode.None : CursorLockMode.Locked;
 
-        // Desativa pausa enquanto está no painel de fim
+        // Desativa pausa
         pauseAction.Disable();
 
-        StartCoroutine(SelectLevelEndButtonNextFrame());
+        // 🔁 força seleção após liberar clique anterior
+        StartCoroutine(ForceFocusOnLevelEndButton());
     }
 
-    private IEnumerator SelectLevelEndButtonNextFrame()
-{
-    yield return null;
 
-    if (levelEndFirstButton != null && levelEndFirstButton.activeInHierarchy)
+    private IEnumerator ForceFocusOnLevelEndButton()
     {
-        // 🔁 Reset seleção
-        EventSystem.current.SetSelectedGameObject(null);
-        yield return null;
+        // Espera até o final do frame atual para que o clique anterior termine
+        yield return new WaitForEndOfFrame();
+        yield return null; // força mais um frame de espera
 
-        // ✅ Força foco visual + navegação
-        Button button = levelEndFirstButton.GetComponent<Button>();
-        if (button != null)
+        if (levelEndFirstButton != null && levelEndFirstButton.activeInHierarchy)
         {
-            button.Select(); // força foco visual
+            EventSystem.current.SetSelectedGameObject(null);
+            yield return null;
+
+            Button button = levelEndFirstButton.GetComponent<Button>();
+            if (button != null && button.interactable)
+            {
+                button.Select(); // visualmente
+                EventSystem.current.SetSelectedGameObject(levelEndFirstButton); // logicamente
+                Debug.Log("✅ Botão selecionado no LevelEndScreen: " + button.name);
+            }
+            else
+            {
+                Debug.LogWarning("⚠️ Botão inativo ou não interagível");
+            }
         }
-
-        EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
-
-        Debug.Log("Selecionado: " + EventSystem.current.currentSelectedGameObject?.name);
-
-        // ✅ Garante pareamento com controle
-        if (Gamepad.current != null)
+        else
         {
-            InputUser.PerformPairingWithDevice(Gamepad.current);
-            InputSystem.Update();
+            Debug.LogWarning("❌ levelEndFirstButton está nulo ou inativo");
         }
     }
-}
-
 
 }

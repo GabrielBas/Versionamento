@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ExperienceLevelController : MonoBehaviour
 {
@@ -18,7 +19,9 @@ public class ExperienceLevelController : MonoBehaviour
 
     public List<Weapon> weaponsToUpgrade;
 
-    
+    public GameObject levelUpFirstButton;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -63,6 +66,8 @@ public class ExperienceLevelController : MonoBehaviour
 
         UIController.instance.levelUpPanel.SetActive(true);
         Time.timeScale = 0f;
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(levelUpFirstButton);
 
         weaponsToUpgrade.Clear();
         List<Weapon> availableWeapons = new List<Weapon>();

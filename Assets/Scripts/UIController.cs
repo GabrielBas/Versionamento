@@ -2,20 +2,21 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Users;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
+
+// Importações omitidas para foco
 
 public class UIController : MonoBehaviour
 {
     public static UIController instance;
 
     public GameObject Player;
-    private PlayerInput playerInput; // ✅ Referência separada
 
     public GameObject pauseFirstButton;
     public GameObject levelEndFirstButton;
+    
 
     private InputAction pauseAction;
 
@@ -43,12 +44,6 @@ public class UIController : MonoBehaviour
         pauseAction = new InputAction(type: InputActionType.Button, binding: "<Gamepad>/start");
         pauseAction.Enable();
         pauseAction.performed += PauseAction_performed;
-
-        // ✅ Pega referência do PlayerInput antes de desativar o Player
-        if (Player != null)
-        {
-            playerInput = Player.GetComponent<PlayerInput>();
-        }
     }
 
     private void OnDestroy()
@@ -78,9 +73,7 @@ public class UIController : MonoBehaviour
         {
             pauseScreen.SetActive(true);
             Time.timeScale = 0f;
-
-            if (Player != null) Player.SetActive(false); // desativa só visualmente
-            if (playerInput != null) playerInput.enabled = true; // ✅ mantém controle ativo
+            Player.SetActive(false);
 
             if (pauseFirstButton != null)
             {
@@ -94,11 +87,10 @@ public class UIController : MonoBehaviour
             if (!levelUpPanel.activeSelf)
             {
                 Time.timeScale = 1f;
-                if (Player != null) Player.SetActive(true);
+                Player.SetActive(true);
             }
 
             EventSystem.current.SetSelectedGameObject(null);
-
         }
     }
 
@@ -120,29 +112,10 @@ public class UIController : MonoBehaviour
         coinText.text = " " + CoinController.instance.currentCoins;
     }
 
-    public void PurchaseMoveSpeed()
-    {
-        PlayerStatController.instance.PurchaseMoveSpeed();
-        SkipLevelUp();
-    }
-
-    public void PurchaseHealth()
-    {
-        PlayerStatController.instance.PurchaseHealth();
-        SkipLevelUp();
-    }
-
-    public void PurchasePickupRange()
-    {
-        PlayerStatController.instance.PurchasePickupRange();
-        SkipLevelUp();
-    }
-
-    public void PurchaseMaxWeapons()
-    {
-        PlayerStatController.instance.PurchaseMaxWeapons();
-        SkipLevelUp();
-    }
+    public void PurchaseMoveSpeed() { PlayerStatController.instance.PurchaseMoveSpeed(); SkipLevelUp(); }
+    public void PurchaseHealth() { PlayerStatController.instance.PurchaseHealth(); SkipLevelUp(); }
+    public void PurchasePickupRange() { PlayerStatController.instance.PurchasePickupRange(); SkipLevelUp(); }
+    public void PurchaseMaxWeapons() { PlayerStatController.instance.PurchaseMaxWeapons(); SkipLevelUp(); }
 
     public void UpdateTimer(float time)
     {
@@ -173,28 +146,24 @@ public class UIController : MonoBehaviour
     public void ShowLevelEndScreen(float finalTime)
     {
         levelEndScreen.SetActive(true);
+        endTimeText.text = "Time: " + Mathf.FloorToInt(finalTime / 60f) + ":" + Mathf.FloorToInt(finalTime % 60f).ToString("00");
 
-        endTimeText.text = "Time: " + Mathf.FloorToInt(finalTime / 60f) + ":" +
-                           Mathf.FloorToInt(finalTime % 60f).ToString("00");
-
-        // Cursor só se mouse foi usado
         bool isMouse = Mouse.current != null && Mouse.current.wasUpdatedThisFrame;
+
         Cursor.visible = isMouse;
         Cursor.lockState = isMouse ? CursorLockMode.None : CursorLockMode.Locked;
 
-        // Desativa pausa
         pauseAction.Disable();
 
-        // 🔁 força seleção após liberar clique anterior
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
+
         StartCoroutine(ForceFocusOnLevelEndButton());
     }
 
-
     private IEnumerator ForceFocusOnLevelEndButton()
     {
-        // Espera até o final do frame atual para que o clique anterior termine
-        yield return new WaitForEndOfFrame();
-        yield return null; // força mais um frame de espera
+        yield return new WaitForSecondsRealtime(0.1f); // aguarda 100ms
 
         if (levelEndFirstButton != null && levelEndFirstButton.activeInHierarchy)
         {
@@ -204,13 +173,19 @@ public class UIController : MonoBehaviour
             Button button = levelEndFirstButton.GetComponent<Button>();
             if (button != null && button.interactable)
             {
-                button.Select(); // visualmente
-                EventSystem.current.SetSelectedGameObject(levelEndFirstButton); // logicamente
-                Debug.Log("✅ Botão selecionado no LevelEndScreen: " + button.name);
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ Botão inativo ou não interagível");
+                button.Select();
+                EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
+
+                Debug.Log("✅ Tentando selecionar: " + levelEndFirstButton.name);
+                Debug.Log("🔎 Atual: " + EventSystem.current.currentSelectedGameObject?.name);
+
+                if (EventSystem.current.currentSelectedGameObject != levelEndFirstButton)
+                {
+                    Debug.LogWarning("🔁 Tentando forçar novamente a seleção no LevelEndFirstButton");
+                    EventSystem.current.SetSelectedGameObject(null);
+                    yield return null;
+                    EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
+                }
             }
         }
         else
@@ -219,4 +194,12 @@ public class UIController : MonoBehaviour
         }
     }
 
+
+    // 🔁 Agora o UIController pode iniciar a morte do jogador com delay, mesmo com o Player desativado
+    public IEnumerator DelayedHandleDeath()
+    {
+        yield return null;
+        Time.timeScale = 1f;
+        PlayerHealthController.instance.HandlePlayerDeath();
+    }
 }

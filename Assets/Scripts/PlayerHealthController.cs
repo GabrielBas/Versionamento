@@ -19,49 +19,40 @@ public class PlayerHealthController : MonoBehaviour
 
     public GameObject deathEffect;
 
-    public Button gameOverButton; // Botão para disparar o Game Over manualmente
-    public GameObject confirmationPanel; // Painel de confirmação
-    public GameObject pauseScreen; // Painel de Pause
-    public Button yesButton; // Botão "Sim"
-    public Button noButton;  // Botão "Não"
-    public Button resumeButton; // ✅ Botão principal do pauseScreen
+    public Button gameOverButton;
+    public GameObject confirmationPanel;
+    public GameObject pauseScreen;
+    public Button yesButton;
+    public Button noButton;
+    public Button resumeButton;
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            CancelGameOver();
-        }
-    }
+    public GameObject levelEndFirstButton;
 
     void Start()
     {
         maxHealth = PlayerStatController.instance.health[0].value;
-
         currentHealth = maxHealth;
 
         healthSlider.maxValue = maxHealth;
         healthSlider.value = currentHealth;
 
         if (gameOverButton != null)
-        {
             gameOverButton.onClick.AddListener(OpenConfirmationPanel);
-        }
 
         if (yesButton != null)
-        {
             yesButton.onClick.AddListener(ConfirmGameOver);
-        }
 
         if (noButton != null)
-        {
             noButton.onClick.AddListener(CancelGameOver);
-        }
 
         if (confirmationPanel != null)
-        {
             confirmationPanel.SetActive(false);
-        }
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            CancelGameOver();
     }
 
     public void TakeDamage(float damageToTake)
@@ -69,9 +60,7 @@ public class PlayerHealthController : MonoBehaviour
         currentHealth -= damageToTake;
 
         if (currentHealth <= 0)
-        {
             HandlePlayerDeath();
-        }
 
         healthSlider.value = currentHealth;
     }
@@ -81,9 +70,7 @@ public class PlayerHealthController : MonoBehaviour
         currentHealth += healAmount;
 
         if (currentHealth > maxHealth)
-        {
             currentHealth = maxHealth;
-        }
 
         healthSlider.value = currentHealth;
     }
@@ -93,22 +80,15 @@ public class PlayerHealthController : MonoBehaviour
         if (confirmationPanel != null)
         {
             confirmationPanel.SetActive(true);
-            Time.timeScale = 0f; // Pausa o jogo
+            Time.timeScale = 0f;
 
-            // 🔴 Desativa o pauseScreen para impedir navegação indevida
             if (pauseScreen != null)
-            {
                 pauseScreen.SetActive(false);
-            }
 
-            // 🔁 Limpa o botão previamente selecionado
             EventSystem.current.SetSelectedGameObject(null);
 
-            // ✅ Seleciona o botão para o controle funcionar corretamente
             if (noButton != null)
-            {
                 EventSystem.current.SetSelectedGameObject(noButton.gameObject);
-            }
         }
     }
 
@@ -117,39 +97,33 @@ public class PlayerHealthController : MonoBehaviour
         currentHealth = 0;
         confirmationPanel.SetActive(false);
 
-        if (pauseScreen != null)
-        {
-            pauseScreen.SetActive(false);
-        }
+        EventSystem.current.SetSelectedGameObject(null);
 
-        HandlePlayerDeath();
-        Time.timeScale = 1f; // Despausa o jogo
-        
+        if (pauseScreen != null)
+            pauseScreen.SetActive(false);
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(levelEndFirstButton);
+
+        // 🔁 Em vez de rodar coroutine aqui, chamamos pela UIController
+        UIController.instance.StartCoroutine(UIController.instance.DelayedHandleDeath());
     }
 
     private void CancelGameOver()
     {
         if (confirmationPanel != null)
-        {
             confirmationPanel.SetActive(false);
-        }
 
-        // 🔁 Reativa o pauseScreen se ele estava ativo antes
         if (pauseScreen != null)
-        {
             pauseScreen.SetActive(true);
-        }
 
-        // 🔁 Limpa e define o botão selecionado para funcionar com controle
         EventSystem.current.SetSelectedGameObject(null);
 
         if (resumeButton != null)
-        {
             EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
-        }
     }
 
-    private void HandlePlayerDeath()
+    public void HandlePlayerDeath()
     {
         foreach (Transform child in transform)
         {
@@ -158,9 +132,7 @@ public class PlayerHealthController : MonoBehaviour
                 child.SetParent(null);
                 TrailRenderer trail = child.GetComponentInChildren<TrailRenderer>();
                 if (trail != null)
-                {
                     trail.emitting = false;
-                }
             }
         }
 

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class PlayerStatController : MonoBehaviour
 {
@@ -15,6 +16,8 @@ public class PlayerStatController : MonoBehaviour
     public int moveSpeedLevelCount, healthLevelCount, pickupRangeLevelCount;
 
     public int moveSpeedLevel, healthLevel, pickupRangeLevel, maxWeaponsLevel;
+
+    
 
     void Start()
     {
@@ -40,7 +43,10 @@ public class PlayerStatController : MonoBehaviour
         if (UIController.instance.levelUpPanel.activeSelf == true)
         {
             UpdateDisplay();
+            
         }
+
+
     }
 
     public void UpdateDisplay()
@@ -82,6 +88,8 @@ public class PlayerStatController : MonoBehaviour
         {
             UIController.instance.maxWeaponsUpgradeDisplay.ShowMaxLevel();
         }
+
+        
     }
 
     public void PurchaseMoveSpeed()

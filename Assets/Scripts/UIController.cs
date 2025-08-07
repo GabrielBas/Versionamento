@@ -36,6 +36,9 @@ public class UIController : MonoBehaviour
     public TMP_Text endTimeText;
 
     public GameObject pauseScreen;
+    public GameObject confirmationGameOverPanel; // 🔹 Referência ao painel de confirmação Game Over
+
+    private bool canPause = true; // ✅ Define se o pause está permitido
 
     private void Awake()
     {
@@ -67,7 +70,16 @@ public class UIController : MonoBehaviour
 
     public void PauseUnpause()
     {
-        if (levelEndScreen.activeSelf) return;
+        if (!canPause)
+        {
+            Debug.Log("⛔ Pause bloqueado.");
+            return;
+        }
+
+        if (levelEndScreen.activeSelf || levelUpPanel.activeSelf || (confirmationGameOverPanel != null && confirmationGameOverPanel.activeSelf))
+        {
+            return;
+        }
 
         if (!pauseScreen.activeSelf)
         {
@@ -93,6 +105,13 @@ public class UIController : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
         }
     }
+
+    public void BlockPause()
+    {
+        canPause = false;
+        pauseAction.Disable(); // 📴 Também desabilita o input do controle
+    }
+
 
     public void UpdateExperience(int currentExp, int levelExp, int currentlvl)
     {

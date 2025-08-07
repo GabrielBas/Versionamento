@@ -94,6 +94,7 @@ public class PlayerHealthController : MonoBehaviour
 
     private void ConfirmGameOver()
     {
+        UIController.instance.BlockPause(); // ⛔ Bloqueia o pause
         currentHealth = 0;
         confirmationPanel.SetActive(false);
 

@@ -15,7 +15,7 @@ public class SceneTransition : MonoBehaviour
     private static List<SceneTransition> instances = new List<SceneTransition>();
     private static int maxInstances = 5;
 
-    public GameObject firstOptionButton;
+    
 
     void Awake()
     {
@@ -72,8 +72,9 @@ public class SceneTransition : MonoBehaviour
             fadePanel.gameObject.SetActive(true);
             fadePanel.color = new Color(0, 0, 0, 1);
             StartCoroutine(FadeIn());
-            EventSystem.current.SetSelectedGameObject(firstOptionButton);
-        }
+            
+            
+}
         else
         {
             Debug.LogError("fadePanel não está atribuído no SceneTransition");

@@ -46,22 +46,7 @@ public class InputDeviceDetector : MonoBehaviour
         if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
             return;
 
-        // 🔒 Se uma UI estiver aberta, não mude o esquema
-        bool isAnyMenuOpen = UIController.instance != null && (
-            UIController.instance.pauseScreen.activeSelf ||
-            UIController.instance.levelEndScreen.activeSelf ||
-            UIController.instance.levelUpPanel.activeSelf
-        );
-
-        if (isAnyMenuOpen)
-        {
-            // Mantém o cursor visível durante menus
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            return;
-        }
-
-        // Switch to Gamepad
+        // Switch para Gamepad
         if (device is Gamepad && currentScheme != "Gamepad")
         {
             Debug.Log("🔁 Switching to Gamepad");
@@ -71,10 +56,14 @@ public class InputDeviceDetector : MonoBehaviour
             playerInput.SwitchCurrentControlScheme("Gamepad", device);
             currentScheme = "Gamepad";
 
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
+            // Cursor só some no jogo (menus tratam separado)
+            if (!IsAnyMenuOpen())
+            {
+                Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
+            }
         }
-        // Switch to Keyboard & Mouse
+        // Switch para Teclado & Mouse
         else if ((device is Keyboard || device is Mouse) && currentScheme != "Keyboard&Mouse")
         {
             Debug.Log("🔁 Switching to Keyboard&Mouse");
@@ -87,6 +76,30 @@ public class InputDeviceDetector : MonoBehaviour
 
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+        }
+    }
+
+    private bool IsAnyMenuOpen()
+    {
+        return UIController.instance != null && (
+            UIController.instance.pauseScreen.activeSelf ||
+            UIController.instance.levelEndScreen.activeSelf ||
+            UIController.instance.levelUpPanel.activeSelf
+        );
+    }
+
+    private void Update()
+    {
+        // 🔄 Garante que o cursor esteja visível nos menus e escondido no jogo
+        if (IsAnyMenuOpen())
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else if (currentScheme == "Gamepad")
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 }

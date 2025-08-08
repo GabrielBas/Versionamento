@@ -126,17 +126,9 @@ public class MapDrawerFreedom : MonoBehaviour
             return;
         }
 
-        // Define a posição inicial como a posição do player
-        if (player != null)
-        {
-            transform.position = player.transform.position;
-            virtualPointerPos = activeCamera.WorldToScreenPoint(player.transform.position);
-        }
-
         currentTrail = Instantiate(trailPrefab, transform.position, Quaternion.identity);
         ApplyTrailWidthToNewTrail();
     }
-
 
     private void StopDrawing()
     {

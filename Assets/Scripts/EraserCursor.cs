@@ -4,54 +4,64 @@ using UnityEngine;
 
 public class EraserCursor : MonoBehaviour
 {
-    public Camera mainCamera;         // A câmera para detectar a posição do mouse
-    public GameObject trailPrefab;    // Prefab que contém o TrailRenderer
-    public float followSpeed = 10f;   // Velocidade para o cursor acompanhar o mouse
+    public Camera mainCamera;         // Câmera para detectar posição
+    public GameObject trailPrefab;    // Prefab com TrailRenderer
+    public float followSpeed = 10f;   // Velocidade para seguir
+    public float analogSensitivity = 5f; // Sensibilidade do analógico
 
-    private bool isDrawing = false;   // Indica se está desenhando ou não
-    private GameObject currentTrail;  // Referência ao objeto instanciado do trail
+    private bool isDrawing = false;
+    private GameObject currentTrail;
+    private Vector3 cursorPos;
 
     void Start()
     {
         if (mainCamera == null)
-        {
             mainCamera = Camera.main;
-        }
+
+        // Começa na posição inicial do cursor
+        cursorPos = transform.position;
     }
 
     void Update()
     {
-        // Alterna o estado do desenho ao pressionar E
-        if (Input.GetKeyDown(KeyCode.E))
+        // Alterna desenho - E (teclado) ou botão Y (gamepad)
+        if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("buttonSouth"))
         {
-            isDrawing = !isDrawing; // Alterna entre ativar e desativar o desenho
+            isDrawing = !isDrawing;
 
             if (isDrawing)
-            {
-                StartNewTrail(); // Inicia um novo Trail
-            }
+                StartNewTrail();
             else
-            {
-                StopDrawing(); // Para de desenhar
-            }
+                StopDrawing();
         }
 
-        // Atualiza a posição do objeto de desenho se estiver em modo de desenho
         if (isDrawing)
         {
-            Vector3 mousePos = Input.mousePosition;
-            mousePos.z = Mathf.Abs(mainCamera.transform.position.z); // Ajusta a profundidade para câmera 2D
-            Vector3 worldPos = mainCamera.ScreenToWorldPoint(mousePos);
-            transform.position = worldPos;
+            Vector3 worldPos = cursorPos;
 
-            // Move o objeto suavemente em direção ao cursor
-            transform.position = Vector3.Lerp(transform.position, worldPos, followSpeed * Time.deltaTime);
-
-            // Atualiza a posição do rastro atual
-            if (currentTrail != null)
+            // Movimento pelo mouse
+            if (Input.mousePresent)
             {
-                currentTrail.transform.position = transform.position;
+                Vector3 mousePos = Input.mousePosition;
+                mousePos.z = Mathf.Abs(mainCamera.transform.position.z);
+                worldPos = mainCamera.ScreenToWorldPoint(mousePos);
             }
+
+            // Movimento pelo analógico direito do controle
+            float moveX = Input.GetAxis("RightStickHorizontal");
+            float moveY = Input.GetAxis("RightStickVertical");
+
+            if (Mathf.Abs(moveX) > 0.1f || Mathf.Abs(moveY) > 0.1f)
+            {
+                worldPos = cursorPos + new Vector3(moveX, moveY, 0) * analogSensitivity * Time.deltaTime;
+            }
+
+            // Suaviza movimento
+            cursorPos = Vector3.Lerp(cursorPos, worldPos, followSpeed * Time.deltaTime);
+            transform.position = cursorPos;
+
+            if (currentTrail != null)
+                currentTrail.transform.position = transform.position;
         }
     }
 
@@ -62,32 +72,22 @@ public class EraserCursor : MonoBehaviour
             Debug.LogError("Trail Prefab não está atribuído!");
             return;
         }
-
-        // Instancia o Prefab na posição atual do cursor
         currentTrail = Instantiate(trailPrefab, transform.position, Quaternion.identity);
     }
 
     private void StopDrawing()
     {
-        // Para de desenhar no rastro atual
         if (currentTrail != null)
         {
             TrailRenderer trail = currentTrail.GetComponent<TrailRenderer>();
             if (trail != null)
-            {
-                trail.emitting = false; // Para de emitir o rastro
-            }
+                trail.emitting = false;
         }
     }
+
     void OnDisable()
     {
         if (currentTrail != null)
-        {
             Destroy(currentTrail);
-        }
     }
-
 }
-
-
-

@@ -342,6 +342,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Eraser"",
+                    ""type"": ""Button"",
+                    ""id"": ""da7c54e6-9db8-49b4-9967-b5178c98f31d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -553,6 +562,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""ScrollWheel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0890e2bd-6c8a-4134-8207-6adbc034346a"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Eraser"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ce7c0b08-7560-42d1-bee1-0f1d41488478"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Eraser"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -602,6 +633,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_UI_Point = m_UI.FindAction("Point", throwIfNotFound: true);
         m_UI_Click = m_UI.FindAction("Click", throwIfNotFound: true);
         m_UI_ScrollWheel = m_UI.FindAction("ScrollWheel", throwIfNotFound: true);
+        m_UI_Eraser = m_UI.FindAction("Eraser", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -747,6 +779,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Point;
     private readonly InputAction m_UI_Click;
     private readonly InputAction m_UI_ScrollWheel;
+    private readonly InputAction m_UI_Eraser;
     public struct UIActions
     {
         private @PlayerControls m_Wrapper;
@@ -757,6 +790,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         public InputAction @Point => m_Wrapper.m_UI_Point;
         public InputAction @Click => m_Wrapper.m_UI_Click;
         public InputAction @ScrollWheel => m_Wrapper.m_UI_ScrollWheel;
+        public InputAction @Eraser => m_Wrapper.m_UI_Eraser;
         public InputActionMap Get() { return m_Wrapper.m_UI; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -784,6 +818,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ScrollWheel.started += instance.OnScrollWheel;
             @ScrollWheel.performed += instance.OnScrollWheel;
             @ScrollWheel.canceled += instance.OnScrollWheel;
+            @Eraser.started += instance.OnEraser;
+            @Eraser.performed += instance.OnEraser;
+            @Eraser.canceled += instance.OnEraser;
         }
 
         private void UnregisterCallbacks(IUIActions instance)
@@ -806,6 +843,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ScrollWheel.started -= instance.OnScrollWheel;
             @ScrollWheel.performed -= instance.OnScrollWheel;
             @ScrollWheel.canceled -= instance.OnScrollWheel;
+            @Eraser.started -= instance.OnEraser;
+            @Eraser.performed -= instance.OnEraser;
+            @Eraser.canceled -= instance.OnEraser;
         }
 
         public void RemoveCallbacks(IUIActions instance)
@@ -857,5 +897,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         void OnPoint(InputAction.CallbackContext context);
         void OnClick(InputAction.CallbackContext context);
         void OnScrollWheel(InputAction.CallbackContext context);
+        void OnEraser(InputAction.CallbackContext context);
     }
 }

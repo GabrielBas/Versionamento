@@ -13,26 +13,31 @@ public class MainMenu : MonoBehaviour
 
     private PlayerInput playerInput;
 
-    public GameObject firstOptionButton, firstGalleryButton;
+    public GameObject startFirstButton;
+
+
 
     private void Awake()
     {
-        // Busca o PlayerInput existente na cena
-        playerInput = FindObjectOfType<PlayerInput>();
+        //// Busca o PlayerInput existente na cena
+        //playerInput = FindObjectOfType<PlayerInput>();
 
-        // Garante que o mapa de input inicial é o de UI
-        if (playerInput != null)
-        {
-            playerInput.SwitchCurrentActionMap("UI");
-        }
+        //// Garante que o mapa de input inicial é o de UI
+        //if (playerInput != null)
+        //{
+        //    playerInput.SwitchCurrentActionMap("UI");
+        //}
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(startFirstButton);
     }
 
     public void Options()
     {
         panelMainMenu.SetActive(false);
         panelOptions.SetActive(true);
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstOptionButton);
+
+        
     }
 
     public void CloseOptions()
@@ -46,8 +51,7 @@ public class MainMenu : MonoBehaviour
     {
         panelMainMenu.SetActive(false);
         panelGallery.SetActive(true);
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(firstGalleryButton);
+        
     }
 
     public void CloseGallery()

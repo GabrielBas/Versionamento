@@ -1158,10 +1158,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 1460361969}
+    m_SelectOnDown: {fileID: 2065106573}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 3
@@ -3466,10 +3466,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 2065106573}
+    m_SelectOnDown: {fileID: 1294252810}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 3
@@ -4595,10 +4595,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 1059098571}
+    m_SelectOnDown: {fileID: 1460361969}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 3
@@ -5089,6 +5089,7 @@ GameObject:
   - component: {fileID: 1354804910}
   - component: {fileID: 1354804908}
   - component: {fileID: 1354804909}
+  - component: {fileID: 1354804911}
   m_Layer: 0
   m_Name: InputManager
   m_TagString: Untagged
@@ -5134,7 +5135,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
+  m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: UI
   m_SplitScreenIndex: -1
@@ -5154,6 +5155,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1354804911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1354804906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 714cf8e13ba5bca49bd319c32b55bece, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1419936088
 GameObject:
   m_ObjectHideFlags: 0
@@ -5439,10 +5452,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 1294252810}
+    m_SelectOnDown: {fileID: 149978867}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 3
@@ -6541,8 +6554,7 @@ MonoBehaviour:
   panelOptions: {fileID: 467186759}
   panelGallery: {fileID: 2086968324}
   panelControls: {fileID: 877837053}
-  firstOptionButton: {fileID: 0}
-  firstGalleryButton: {fileID: 0}
+  startFirstButton: {fileID: 1294252807}
 --- !u!4 &1818937587
 Transform:
   m_ObjectHideFlags: 0
@@ -7270,10 +7282,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 149978867}
+    m_SelectOnDown: {fileID: 1059098571}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 3
@@ -8164,8 +8176,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7701355515488484797, guid: bb8c3d745d0e32a46995f747aa9f11c4, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9034894675039358456, guid: bb8c3d745d0e32a46995f747aa9f11c4, type: 3}
+      propertyPath: firstStartButton
+      value: 
+      objectReference: {fileID: 1059098569}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -405,8 +405,9 @@ MonoBehaviour:
   fullScreenImage: {fileID: 624972021}
   fullScreenPanel: {fileID: 1046573640}
   scrollViewPanel: {fileID: 1579787425}
-  setAsBackgroundButton: {fileID: 0}
+  setAsBackgroundButton: {fileID: 2281527500610889406}
   backButton: {fileID: 4147146762494930169}
+  scrollRect: {fileID: 1579787427}
 --- !u!4 &44116377
 Transform:
   m_ObjectHideFlags: 0
@@ -1182,7 +1183,7 @@ MonoBehaviour:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 149978868}
@@ -1281,7 +1282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
+  m_FirstSelected: {fileID: 1059098569}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
 --- !u!4 &168106636
@@ -3490,7 +3491,7 @@ MonoBehaviour:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 1059098572}
@@ -4619,7 +4620,7 @@ MonoBehaviour:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 1294252811}
@@ -5137,7 +5138,7 @@ MonoBehaviour:
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
-  m_DefaultActionMap: UI
+  m_DefaultActionMap: 0371ce3c-4589-4f17-b2db-deb6ea60e4e1
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
 --- !u!4 &1354804910
@@ -5476,7 +5477,7 @@ MonoBehaviour:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 1460361970}
@@ -5919,6 +5920,7 @@ GameObject:
   - component: {fileID: 1579787429}
   - component: {fileID: 1579787428}
   - component: {fileID: 1579787427}
+  - component: {fileID: 1579787430}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -6016,6 +6018,24 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1579787425}
   m_CullTransparentMesh: 1
+--- !u!114 &1579787430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579787425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cbbda0a70ab2ac4fb85a50f648527f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scrollRect: {fileID: 1579787427}
+  scrollbarVertical: {fileID: 1323799978}
+  content: {fileID: 1555527184}
+  verticalAxis: Vertical
+  scrollSpeed: 1
+  snapDelay: 0.2
 --- !u!1 &1651607187
 GameObject:
   m_ObjectHideFlags: 0
@@ -6554,7 +6574,10 @@ MonoBehaviour:
   panelOptions: {fileID: 467186759}
   panelGallery: {fileID: 2086968324}
   panelControls: {fileID: 877837053}
-  startFirstButton: {fileID: 1294252807}
+  firstMainMenuButton: {fileID: 1059098569}
+  firstOptionsButton: {fileID: 1294252807}
+  firstGalleryButton: {fileID: 1460361966}
+  firstControlsButton: {fileID: 2065106570}
 --- !u!4 &1818937587
 Transform:
   m_ObjectHideFlags: 0
@@ -7306,7 +7329,7 @@ MonoBehaviour:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 2065106574}
@@ -8176,7 +8199,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7701355515488484797, guid: bb8c3d745d0e32a46995f747aa9f11c4, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9034894675039358456, guid: bb8c3d745d0e32a46995f747aa9f11c4, type: 3}
       propertyPath: firstStartButton

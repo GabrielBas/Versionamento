@@ -1,75 +1,106 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
+    [Header("Panels")]
     [SerializeField] private GameObject panelMainMenu;
     [SerializeField] private GameObject panelOptions;
     [SerializeField] private GameObject panelGallery;
     [SerializeField] private GameObject panelControls;
 
+    [Header("First Buttons")]
+    [SerializeField] private GameObject firstMainMenuButton;
+    [SerializeField] private GameObject firstOptionsButton;
+    [SerializeField] private GameObject firstGalleryButton;
+    [SerializeField] private GameObject firstControlsButton;
+
     private PlayerInput playerInput;
-
-    public GameObject startFirstButton;
-
-
 
     private void Awake()
     {
-        //// Busca o PlayerInput existente na cena
-        //playerInput = FindObjectOfType<PlayerInput>();
+        // Garante que há um PlayerInput na cena
+        playerInput = FindObjectOfType<PlayerInput>();
+        if (playerInput == null)
+            playerInput = gameObject.AddComponent<PlayerInput>();
 
-        //// Garante que o mapa de input inicial é o de UI
-        //if (playerInput != null)
-        //{
-        //    playerInput.SwitchCurrentActionMap("UI");
-        //}
+        playerInput.SwitchCurrentActionMap("UI");
 
+        // Foco inicial no menu principal
+        SetSelectedButton(firstMainMenuButton);
+    }
+
+    private void Update()
+    {
+        // Detecta se está usando gamepad (qualquer botão de navegação)
+        if (Gamepad.current != null &&
+            (Gamepad.current.dpad.up.wasPressedThisFrame ||
+             Gamepad.current.dpad.down.wasPressedThisFrame ||
+             Gamepad.current.leftStick.up.wasPressedThisFrame ||
+             Gamepad.current.leftStick.down.wasPressedThisFrame ||
+             Gamepad.current.buttonNorth.wasPressedThisFrame ||
+             Gamepad.current.buttonSouth.wasPressedThisFrame))
+        {
+            // Se não houver botão selecionado, restaura o último válido
+            if (EventSystem.current.currentSelectedGameObject == null)
+            {
+                if (panelMainMenu.activeSelf) SetSelectedButton(firstMainMenuButton);
+                else if (panelOptions.activeSelf) SetSelectedButton(firstOptionsButton);
+                else if (panelGallery.activeSelf) SetSelectedButton(firstGalleryButton);
+                else if (panelControls.activeSelf) SetSelectedButton(firstControlsButton);
+            }
+        }
+    }
+
+    private void SetSelectedButton(GameObject button)
+    {
         EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(startFirstButton);
+        EventSystem.current.SetSelectedGameObject(button);
     }
 
     public void Options()
     {
         panelMainMenu.SetActive(false);
         panelOptions.SetActive(true);
-
-        
+        SetSelectedButton(firstOptionsButton);
     }
 
     public void CloseOptions()
     {
         panelOptions.SetActive(false);
         panelMainMenu.SetActive(true);
-        
+        SetSelectedButton(firstMainMenuButton);
     }
 
     public void Gallery()
     {
         panelMainMenu.SetActive(false);
         panelGallery.SetActive(true);
-        
+        SetSelectedButton(firstGalleryButton);
     }
 
     public void CloseGallery()
     {
         panelGallery.SetActive(false);
         panelMainMenu.SetActive(true);
+        SetSelectedButton(firstMainMenuButton);
     }
 
     public void Controls()
     {
         panelMainMenu.SetActive(false);
         panelControls.SetActive(true);
+        SetSelectedButton(firstControlsButton);
     }
 
     public void CloseControls()
     {
         panelControls.SetActive(false);
         panelMainMenu.SetActive(true);
+        SetSelectedButton(firstMainMenuButton);
     }
 
     public void QuitGame()

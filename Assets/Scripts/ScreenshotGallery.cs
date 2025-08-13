@@ -22,10 +22,18 @@ public class ScreenshotGallery : MonoBehaviour
     private PlayerInput playerInput;
     private List<GameObject> thumbnails = new List<GameObject>();
 
+    // Outline para feedback
+    private Outline lastOutline;
+
     void Start()
     {
         playerInput = FindObjectOfType<PlayerInput>();
         screenshotPath = Path.Combine(Application.dataPath, "Screenshots/");
+
+        // Avisa ao GalleryScrollHybrid para não selecionar automaticamente
+        var hybrid = FindObjectOfType<GalleryScrollHybrid>();
+        if (hybrid != null)
+            hybrid.skipInitialSelection = true;
 
         if (!Directory.Exists(screenshotPath))
         {
@@ -40,10 +48,11 @@ public class ScreenshotGallery : MonoBehaviour
             StartCoroutine(SelectFirstThumbnailNextFrame());
     }
 
+
     IEnumerator SelectFirstThumbnailNextFrame()
     {
         yield return null;
-        EventSystem.current.SetSelectedGameObject(thumbnails[0]);
+        SelectThumbnail(thumbnails[0]);
     }
 
     public void LoadGallery()
@@ -77,7 +86,7 @@ public class ScreenshotGallery : MonoBehaviour
         {
             button.onClick.AddListener(() => ShowFullScreen(filePath, texture));
 
-            // Garantir que seja navegável
+            // Navegação só no D-Pad/Teclas
             Navigation nav = button.navigation;
             nav.mode = Navigation.Mode.Automatic;
             button.navigation = nav;
@@ -88,11 +97,13 @@ public class ScreenshotGallery : MonoBehaviour
 
     public void ShowFullScreen(string filePath, Texture2D texture)
     {
+        // Esconde o scroll antes de trocar a imagem
+        scrollViewPanel.SetActive(false);
+
         fullScreenImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
         fullScreenPanel.SetActive(true);
         selectedImagePath = filePath;
 
-        scrollViewPanel.SetActive(false);
         if (backButton != null) backButton.SetActive(false);
 
         if (setAsBackgroundButton != null)
@@ -114,7 +125,7 @@ public class ScreenshotGallery : MonoBehaviour
         if (setAsBackgroundButton != null) setAsBackgroundButton.gameObject.SetActive(false);
 
         if (thumbnails.Count > 0)
-            EventSystem.current.SetSelectedGameObject(thumbnails[0]);
+            SelectThumbnail(thumbnails[0]);
     }
 
     public void SetAsBackground()
@@ -140,6 +151,20 @@ public class ScreenshotGallery : MonoBehaviour
             }
         }
 
+        // Feedback visual no thumbnail selecionado
+        if (EventSystem.current.currentSelectedGameObject != null)
+        {
+            var outline = EventSystem.current.currentSelectedGameObject.GetComponent<Outline>();
+            if (outline != null)
+            {
+                if (lastOutline != null && lastOutline != outline)
+                    lastOutline.enabled = false;
+
+                outline.enabled = true;
+                lastOutline = outline;
+            }
+        }
+
         // Scroll automático conforme seleção
         if (scrollRect != null && EventSystem.current.currentSelectedGameObject != null)
         {
@@ -152,6 +177,21 @@ public class ScreenshotGallery : MonoBehaviour
                 float normalizedY = Mathf.Clamp01(1 - ((selected.anchoredPosition.y + scrollRect.content.anchoredPosition.y) / (contentHeight - viewportHeight)));
                 scrollRect.normalizedPosition = new Vector2(0, normalizedY);
             }
+        }
+    }
+
+    private void SelectThumbnail(GameObject thumbnail)
+    {
+        EventSystem.current.SetSelectedGameObject(thumbnail);
+
+        var outline = thumbnail.GetComponent<Outline>();
+        if (outline != null)
+        {
+            if (lastOutline != null && lastOutline != outline)
+                lastOutline.enabled = false;
+
+            outline.enabled = true;
+            lastOutline = outline;
         }
     }
 }

@@ -1,58 +1,292 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using System.Collections.Generic;
+using UnityEngine.InputSystem;
 
 public class GalleryScrollHybrid : MonoBehaviour
 {
-    [HideInInspector] public bool skipInitialSelection = false; // <<< NOVO
-    public ScrollRect scrollRect;
-    public GameObject outlinePrefab;
+    [Header("Referências")]
+    public ScrollRect scrollRect;               // ScrollRect vertical
+    public Transform content;                   // Content com os thumbnails (cada filho tem Button)
 
-    private List<Button> items = new List<Button>();
-    private int currentIndex = 0;
-    private GameObject currentOutline;
+    [Header("Outline de Seleção")]
+    public Color outlineColor = new Color(1f, 0.8f, 0.2f, 1f);
+    public Vector2 outlineThickness = new Vector2(3f, 3f);
+
+    [Header("D-Pad Repeat")]
+    public float dpadInitialDelay = 0.35f;      // tempo antes do primeiro repeat
+    public float dpadRepeatRate = 0.12f;        // intervalo entre repeats
+
+    [HideInInspector] public bool skipInitialSelection = false;
+
+    // Estado interno
+    private readonly List<Button> items = new List<Button>();
+    private int currentIndex = -1;
+    private GameObject lastSelectedGO;
+
+    // Repeat
+    private float repeatTimer = 0f;
+    private int heldDir = 0; // -1 = up, +1 = down
+
+    // Controle do EventSystem
+    private bool prevSendNav = true;
+
+    public int CurrentIndex => currentIndex;
+
+    private void Awake()
+    {
+        if (scrollRect == null) scrollRect = GetComponent<ScrollRect>();
+        if (content == null && scrollRect != null) content = scrollRect.content;
+    }
 
     private void OnEnable()
     {
-        //RebuildItems();
-
-        // Só seleciona automaticamente se não for controlado por outro script
-        if (!skipInitialSelection && items.Count > 0)
+        // Desliga navegação automática do módulo de UI enquanto a galeria está ativa
+        if (EventSystem.current != null)
         {
-            SelectIndex(0);
-            EventSystem.current.SetSelectedGameObject(items[0].gameObject);
+            prevSendNav = EventSystem.current.sendNavigationEvents;
+            EventSystem.current.sendNavigationEvents = false;
+        }
+
+        RebuildItems();
+
+        if (!skipInitialSelection && items.Count > 0)
+            SelectIndexInternal(0, centerInView: true);
+    }
+
+    private void OnDisable()
+    {
+        // Restaura navegação do EventSystem
+        if (EventSystem.current != null)
+            EventSystem.current.sendNavigationEvents = prevSendNav;
+    }
+
+    private void Update()
+    {
+        // Recarrega lista se mudou a quantidade de filhos
+        if (content != null && items.Count != content.childCount)
+        {
+            RebuildItems();
+            if (currentIndex < 0 && items.Count > 0)
+                SelectIndexInternal(0, centerInView: true);
+        }
+
+        HandleDPad();
+
+        // Clique do mouse muda o selecionado via EventSystem; sincroniza índice
+        if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            var esGO = EventSystem.current.currentSelectedGameObject;
+            int idx = IndexOfItem(esGO);
+            if (idx >= 0 && idx != currentIndex)
+                SelectIndexInternal(idx, centerInView: false);
         }
     }
 
-    //private void RebuildItems()
-    //{
-    //    items.Clear();
-    //    foreach (Transform child in scrollRect.content)
-    //    {
-    //        Button btn = child.GetComponent<Button>();
-    //        if (btn != null)
-    //            items.Add(btn);
-    //    }
-    //}
+    // ---------- API pública ----------
+    public void SelectIndexPublic(int index, bool centerInView = true)
+    {
+        SelectIndexInternal(index, centerInView);
+    }
 
-    public void SelectIndex(int index)
+    // ---------- Navegação D-Pad ----------
+    private void HandleDPad()
+    {
+        int dir = 0;
+
+        bool upPressed =
+            (Gamepad.current != null && Gamepad.current.dpad.up.wasPressedThisFrame) ||
+            (Keyboard.current != null && Keyboard.current.upArrowKey.wasPressedThisFrame);
+        bool downPressed =
+            (Gamepad.current != null && Gamepad.current.dpad.down.wasPressedThisFrame) ||
+            (Keyboard.current != null && Keyboard.current.downArrowKey.wasPressedThisFrame);
+
+        if (upPressed) dir = -1;
+        else if (downPressed) dir = +1;
+
+        // Primeiro passo instantâneo
+        if (dir != 0)
+        {
+            MoveSelection(dir);
+            heldDir = dir;
+            repeatTimer = dpadInitialDelay;
+        }
+        else
+        {
+            // Hold para repetir
+            float heldY = 0f;
+            if (Gamepad.current != null)
+            {
+                if (Gamepad.current.dpad.up.isPressed) heldY = -1f;
+                else if (Gamepad.current.dpad.down.isPressed) heldY = +1f;
+            }
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.upArrowKey.isPressed) heldY = -1f;
+                else if (Keyboard.current.downArrowKey.isPressed) heldY = +1f;
+            }
+
+            if (Mathf.Abs(heldY) > 0.5f)
+            {
+                if (heldDir == 0) heldDir = heldY > 0 ? +1 : -1;
+
+                if (repeatTimer > 0f) repeatTimer -= Time.unscaledDeltaTime;
+                else
+                {
+                    MoveSelection(heldDir);
+                    repeatTimer = dpadRepeatRate;
+                }
+            }
+            else
+            {
+                heldDir = 0;
+                repeatTimer = 0f;
+            }
+        }
+
+        // Confirm (A / Enter / Espaço)
+        bool confirm =
+            (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame) ||
+            (Keyboard.current != null && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.spaceKey.wasPressedThisFrame));
+
+        if (confirm && currentIndex >= 0 && currentIndex < items.Count)
+        {
+            var btn = items[currentIndex];
+            if (btn != null && btn.interactable) btn.onClick.Invoke();
+        }
+    }
+
+    private void MoveSelection(int delta)
     {
         if (items.Count == 0) return;
 
-        currentIndex = Mathf.Clamp(index, 0, items.Count - 1);
-        EventSystem.current.SetSelectedGameObject(items[currentIndex].gameObject);
-        UpdateOutline();
+        int next = currentIndex < 0 ? 0 : currentIndex + delta;
+        next = Mathf.Clamp(next, 0, items.Count - 1);
+
+        SelectIndexInternal(next, centerInView: true);
     }
 
-    private void UpdateOutline()
+    // ---------- Seleção / Outline ----------
+    private void SelectIndexInternal(int index, bool centerInView)
     {
-        if (currentOutline != null) Destroy(currentOutline);
+        if (items.Count == 0) return;
+        index = Mathf.Clamp(index, 0, items.Count - 1);
 
-        if (outlinePrefab != null && items.Count > 0 && currentIndex >= 0)
+        currentIndex = index;
+        var go = items[currentIndex].gameObject;
+
+        // Seta no EventSystem
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(go);
+
+        // Outline no item atual
+        ApplyOutline(lastSelectedGO, false);
+        ApplyOutline(go, true);
+        lastSelectedGO = go;
+
+        // Garante visível
+        var rt = go.GetComponent<RectTransform>();
+        if (rt != null) EnsureVisible(rt, centerInView);
+    }
+
+    private void ApplyOutline(GameObject go, bool enabled)
+    {
+        if (go == null) return;
+
+        var outline = go.GetComponent<Outline>();
+        if (enabled)
         {
-            currentOutline = Instantiate(outlinePrefab, items[currentIndex].transform);
-            currentOutline.transform.SetAsFirstSibling();
+            if (outline == null) outline = go.AddComponent<Outline>();
+            outline.effectColor = outlineColor;
+            outline.effectDistance = outlineThickness;
+            outline.enabled = true;
         }
+        else if (outline != null)
+        {
+            outline.enabled = false;
+        }
+    }
+
+    // ---------- Scroll robusto ----------
+    private void EnsureVisible(RectTransform target, bool centerInView)
+    {
+        if (scrollRect == null || target == null) return;
+
+        RectTransform viewport = scrollRect.viewport != null ? scrollRect.viewport : scrollRect.GetComponent<RectTransform>();
+        RectTransform contentRT = scrollRect.content;
+
+        float viewportH = viewport.rect.height;
+        float contentH = contentRT.rect.height;
+        if (contentH <= viewportH) return;
+
+        // Cantos do item e do viewport em espaço do viewport
+        Vector3[] itemCorners = new Vector3[4];
+        Vector3[] viewCorners = new Vector3[4];
+        target.GetWorldCorners(itemCorners);
+        viewport.GetWorldCorners(viewCorners);
+
+        for (int i = 0; i < 4; i++)
+        {
+            itemCorners[i] = viewport.InverseTransformPoint(itemCorners[i]);
+            viewCorners[i] = viewport.InverseTransformPoint(viewCorners[i]);
+        }
+
+        float viewTop = viewCorners[1].y;    // yMax
+        float viewBottom = viewCorners[0].y; // yMin
+        float itemTop = itemCorners[1].y;
+        float itemBottom = itemCorners[0].y;
+
+        float posY = contentRT.anchoredPosition.y;
+        float maxY = Mathf.Max(0f, contentH - viewportH);
+
+        if (centerInView)
+        {
+            float itemCenter = (itemTop + itemBottom) * 0.5f;
+            float viewCenter = (viewTop + viewBottom) * 0.5f;
+            float offset = viewCenter - itemCenter; // delta no espaço do viewport
+            posY -= offset;                         // mover conteúdo na direção oposta
+        }
+        else
+        {
+            if (itemTop > viewTop)
+            {
+                float offset = itemTop - viewTop;   // item acima → descer conteúdo
+                posY += offset;
+            }
+            else if (itemBottom < viewBottom)
+            {
+                float offset = viewBottom - itemBottom; // item abaixo → subir conteúdo
+                posY -= offset;
+            }
+        }
+
+        posY = Mathf.Clamp(posY, 0f, maxY);
+        contentRT.anchoredPosition = new Vector2(contentRT.anchoredPosition.x, posY);
+
+        scrollRect.verticalNormalizedPosition = (maxY <= 0f) ? 1f : 1f - (posY / maxY);
+    }
+
+    // ---------- Util ----------
+    private void RebuildItems()
+    {
+        items.Clear();
+        if (content == null) return;
+
+        for (int i = 0; i < content.childCount; i++)
+        {
+            var child = content.GetChild(i);
+            var btn = child.GetComponent<Button>();
+            if (btn != null && btn.gameObject.activeInHierarchy)
+                items.Add(btn);
+        }
+    }
+
+    private int IndexOfItem(GameObject go)
+    {
+        if (go == null) return -1;
+        for (int i = 0; i < items.Count; i++)
+            if (items[i] != null && items[i].gameObject == go) return i;
+        return -1;
     }
 }

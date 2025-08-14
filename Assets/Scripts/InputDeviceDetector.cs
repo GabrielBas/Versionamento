@@ -23,7 +23,7 @@ public class InputDeviceDetector : MonoBehaviour
     private System.Collections.IEnumerator DelayInitialize()
     {
         yield return new WaitForSeconds(0.1f);
-        if (playerInput.user.valid)
+        if (playerInput != null && playerInput.user.valid)
         {
             isInitialized = true;
             InputSystem.onEvent += OnInputEvent;
@@ -42,7 +42,9 @@ public class InputDeviceDetector : MonoBehaviour
 
     private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
     {
-        if (!isInitialized) return;
+        if (!isInitialized || device == null || !device.added)
+            return;
+
         if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
             return;
 
@@ -50,13 +52,16 @@ public class InputDeviceDetector : MonoBehaviour
         if (device is Gamepad && currentScheme != "Gamepad")
         {
             Debug.Log("🔁 Switching to Gamepad");
-            if (!playerInput.user.valid) return;
 
-            InputUser.PerformPairingWithDevice(device, playerInput.user);
+            if (!playerInput.user.valid)
+                return;
+
+            if (!IsDevicePaired(device))
+                InputUser.PerformPairingWithDevice(device, playerInput.user);
+
             playerInput.SwitchCurrentControlScheme("Gamepad", device);
             currentScheme = "Gamepad";
 
-            // Cursor só some no jogo (menus tratam separado)
             if (!IsAnyMenuOpen())
             {
                 Cursor.visible = false;
@@ -67,16 +72,32 @@ public class InputDeviceDetector : MonoBehaviour
         else if ((device is Keyboard || device is Mouse) && currentScheme != "Keyboard&Mouse")
         {
             Debug.Log("🔁 Switching to Keyboard&Mouse");
-            if (!playerInput.user.valid) return;
 
-            InputUser.PerformPairingWithDevice(Keyboard.current, playerInput.user);
-            InputUser.PerformPairingWithDevice(Mouse.current, playerInput.user);
+            if (!playerInput.user.valid)
+                return;
+
+            if (Keyboard.current != null && !IsDevicePaired(Keyboard.current))
+                InputUser.PerformPairingWithDevice(Keyboard.current, playerInput.user);
+
+            if (Mouse.current != null && !IsDevicePaired(Mouse.current))
+                InputUser.PerformPairingWithDevice(Mouse.current, playerInput.user);
+
             playerInput.SwitchCurrentControlScheme("Keyboard&Mouse", Keyboard.current, Mouse.current);
             currentScheme = "Keyboard&Mouse";
 
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
+    }
+
+    private bool IsDevicePaired(InputDevice device)
+    {
+        foreach (var paired in playerInput.user.pairedDevices)
+        {
+            if (paired == device)
+                return true;
+        }
+        return false;
     }
 
     private bool IsAnyMenuOpen()
@@ -90,7 +111,6 @@ public class InputDeviceDetector : MonoBehaviour
 
     private void Update()
     {
-        // 🔄 Garante que o cursor esteja visível nos menus e escondido no jogo
         if (IsAnyMenuOpen())
         {
             Cursor.visible = true;

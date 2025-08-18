@@ -26,6 +26,8 @@ public class ScreenshotGallery : MonoBehaviour
     private PlayerInput playerInput;
     private readonly List<GameObject> thumbnails = new List<GameObject>();
 
+    public SnapScrollView snapScroll; // arraste no inspector
+
     private void Start()
     {
         playerInput = FindObjectOfType<PlayerInput>();
@@ -48,13 +50,16 @@ public class ScreenshotGallery : MonoBehaviour
 
     private IEnumerator SelectFirstThumbnailNextFrame()
     {
-        // espera 2 frames para garantir que o Layout/ContentSizeFitter atualizou
+        // espera 2 frames para Layout/ContentSizeFitter atualizar
         yield return null;
         yield return null;
 
+        if (snapScroll != null)
+            snapScroll.Initialize();
+
         if (galleryNav != null)
             galleryNav.SelectIndexPublic(0, centerInView: true);
-        else
+        else if (thumbnails.Count > 0)
             EventSystem.current.SetSelectedGameObject(thumbnails[0]);
     }
 
@@ -157,4 +162,6 @@ public class ScreenshotGallery : MonoBehaviour
             }
         }
     }
+
+    
 }

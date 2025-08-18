@@ -409,6 +409,7 @@ MonoBehaviour:
   backButton: {fileID: 4147146762494930169}
   scrollRect: {fileID: 1579787427}
   galleryNav: {fileID: 1579787430}
+  snapScroll: {fileID: 0}
 --- !u!4 &44116377
 Transform:
   m_ObjectHideFlags: 0
@@ -4882,7 +4883,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1088185621}
   m_Direction: 2
   m_Value: 1
-  m_Size: 1
+  m_Size: 0.00000019223663
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -5865,10 +5866,10 @@ RectTransform:
   m_Father: {fileID: 1190688897}
   m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 1.2276, y: -0.0009741044}
-  m_SizeDelta: {x: -67.0578, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 476.25015}
+  m_SizeDelta: {x: 784, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1555527185
 MonoBehaviour:
@@ -5902,7 +5903,7 @@ MonoBehaviour:
     m_Top: 50
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 100
+  m_Spacing: 150
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -5923,6 +5924,7 @@ GameObject:
   - component: {fileID: 1579787428}
   - component: {fileID: 1579787427}
   - component: {fileID: 1579787430}
+  - component: {fileID: 1579787431}
   m_Layer: 5
   m_Name: Scroll View
   m_TagString: Untagged
@@ -5967,9 +5969,9 @@ MonoBehaviour:
   m_Content: {fileID: 1555527184}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
-  m_Inertia: 1
+  m_Inertia: 0
   m_DecelerationRate: 0.135
   m_ScrollSensitivity: 50
   m_Viewport: {fileID: 1190688897}
@@ -6034,11 +6036,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scrollRect: {fileID: 1579787427}
   content: {fileID: 1555527184}
-  outlineColor: {r: 0.6698113, g: 0, b: 0.013254404, a: 1}
+  outlineColor: {r: 0.67058825, g: 0.07058824, b: 0, a: 1}
   outlineThickness: {x: 20, y: 30}
   dpadInitialDelay: 0.35
   dpadRepeatRate: 0.12
   skipInitialSelection: 0
+--- !u!114 &1579787431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579787425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d03d53a98883f4e97337975be61034, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scrollRect: {fileID: 1579787427}
+  scrollSpeed: 10
+  moveCooldown: 0.2
 --- !u!1 &1651607187
 GameObject:
   m_ObjectHideFlags: 0

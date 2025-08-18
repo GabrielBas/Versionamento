@@ -220,52 +220,34 @@ public class GalleryScrollHybrid : MonoBehaviour
         float contentH = contentRT.rect.height;
         if (contentH <= viewportH) return;
 
-        // Cantos do item e do viewport em espaço do viewport
-        Vector3[] itemCorners = new Vector3[4];
-        Vector3[] viewCorners = new Vector3[4];
-        target.GetWorldCorners(itemCorners);
-        viewport.GetWorldCorners(viewCorners);
+        // posição do item relativa ao conteúdo
+        float itemTop = Mathf.Abs(target.anchoredPosition.y);
+        float itemBottom = itemTop + target.rect.height;
 
-        for (int i = 0; i < 4; i++)
-        {
-            itemCorners[i] = viewport.InverseTransformPoint(itemCorners[i]);
-            viewCorners[i] = viewport.InverseTransformPoint(viewCorners[i]);
-        }
+        float viewTop = Mathf.Abs(contentRT.anchoredPosition.y);
+        float viewBottom = viewTop + viewportH;
 
-        float viewTop = viewCorners[1].y;    // yMax
-        float viewBottom = viewCorners[0].y; // yMin
-        float itemTop = itemCorners[1].y;
-        float itemBottom = itemCorners[0].y;
-
-        float posY = contentRT.anchoredPosition.y;
-        float maxY = Mathf.Max(0f, contentH - viewportH);
+        float newY = contentRT.anchoredPosition.y;
 
         if (centerInView)
         {
-            float itemCenter = (itemTop + itemBottom) * 0.5f;
-            float viewCenter = (viewTop + viewBottom) * 0.5f;
-            float offset = viewCenter - itemCenter; // delta no espaço do viewport
-            posY -= offset;                         // mover conteúdo na direção oposta
+            // centraliza item
+            newY = itemTop + target.rect.height / 2f - viewportH / 2f;
         }
         else
         {
-            if (itemTop > viewTop)
-            {
-                float offset = itemTop - viewTop;   // item acima → descer conteúdo
-                posY += offset;
-            }
-            else if (itemBottom < viewBottom)
-            {
-                float offset = viewBottom - itemBottom; // item abaixo → subir conteúdo
-                posY -= offset;
-            }
+            if (itemTop < viewTop) newY = itemTop;          // item acima → desce conteúdo
+            else if (itemBottom > viewBottom) newY = itemBottom - viewportH; // item abaixo → sobe conteúdo
         }
 
-        posY = Mathf.Clamp(posY, 0f, maxY);
-        contentRT.anchoredPosition = new Vector2(contentRT.anchoredPosition.x, posY);
+        newY = Mathf.Clamp(newY, 0f, Mathf.Max(0f, contentH - viewportH));
 
-        scrollRect.verticalNormalizedPosition = (maxY <= 0f) ? 1f : 1f - (posY / maxY);
+        contentRT.anchoredPosition = new Vector2(contentRT.anchoredPosition.x, newY);
+
+        // atualiza ScrollRect normalizado
+        scrollRect.verticalNormalizedPosition = (contentH <= viewportH) ? 1f : 1f - (newY / (contentH - viewportH));
     }
+
 
     // ---------- Util ----------
     private void RebuildItems()

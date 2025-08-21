@@ -112,7 +112,11 @@ public class ScreenshotGallery : MonoBehaviour
     {
         if (scrollViewPanel != null) scrollViewPanel.SetActive(false);
 
-        fullScreenImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+        fullScreenImage.sprite = Sprite.Create(
+            texture,
+            new Rect(0, 0, texture.width, texture.height),
+            new Vector2(0.5f, 0.5f)
+        );
         fullScreenPanel.SetActive(true);
         selectedImagePath = filePath;
 
@@ -123,9 +127,13 @@ public class ScreenshotGallery : MonoBehaviour
             setAsBackgroundButton.gameObject.SetActive(true);
             setAsBackgroundButton.onClick.RemoveAllListeners();
             setAsBackgroundButton.onClick.AddListener(SetAsBackground);
+
+            // 🔥 força seleção no EventSystem → agora o botão A funciona
+            EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(setAsBackgroundButton.gameObject);
         }
     }
+
 
     public void CloseFullScreen()
     {

@@ -10,10 +10,6 @@ public class GalleryScrollHybrid : MonoBehaviour
     public ScrollRect scrollRect;               // ScrollRect vertical
     public Transform content;                   // Content com os thumbnails (cada filho tem Button)
 
-    [Header("Outline de Seleção")]
-    public Color outlineColor = new Color(1f, 0.8f, 0.2f, 1f);
-    public Vector2 outlineThickness = new Vector2(3f, 3f);
-
     [Header("D-Pad Repeat")]
     public float dpadInitialDelay = 0.35f;      // tempo antes do primeiro repeat
     public float dpadRepeatRate = 0.12f;        // intervalo entre repeats
@@ -167,7 +163,7 @@ public class GalleryScrollHybrid : MonoBehaviour
         SelectIndexInternal(next, centerInView: true);
     }
 
-    // ---------- Seleção / Outline ----------
+    // ---------- Seleção ----------
     private void SelectIndexInternal(int index, bool centerInView)
     {
         if (items.Count == 0) return;
@@ -176,37 +172,31 @@ public class GalleryScrollHybrid : MonoBehaviour
         currentIndex = index;
         var go = items[currentIndex].gameObject;
 
-        // Seta no EventSystem
+        // manda pro EventSystem
         EventSystem.current.SetSelectedGameObject(null);
         EventSystem.current.SetSelectedGameObject(go);
 
-        // Outline no item atual
-        ApplyOutline(lastSelectedGO, false);
-        ApplyOutline(go, true);
-        lastSelectedGO = go;
+        // 🔥 Destacar usando Canvas (não mexe no sibling index)
+        foreach (var btn in items)
+        {
+            var canvas = btn.GetComponent<Canvas>();
+            if (canvas != null)
+            {
+                canvas.overrideSorting = false;
+            }
+        }
 
-        // Garante visível
+        var selectedCanvas = go.GetComponent<Canvas>();
+        if (selectedCanvas == null)
+            selectedCanvas = go.AddComponent<Canvas>();
+
+        selectedCanvas.overrideSorting = true;
+        selectedCanvas.sortingOrder = 999; // bem alto
+
         var rt = go.GetComponent<RectTransform>();
         if (rt != null) EnsureVisible(rt, centerInView);
     }
 
-    private void ApplyOutline(GameObject go, bool enabled)
-    {
-        if (go == null) return;
-
-        var outline = go.GetComponent<Outline>();
-        if (enabled)
-        {
-            if (outline == null) outline = go.AddComponent<Outline>();
-            outline.effectColor = outlineColor;
-            outline.effectDistance = outlineThickness;
-            outline.enabled = true;
-        }
-        else if (outline != null)
-        {
-            outline.enabled = false;
-        }
-    }
 
     // ---------- Scroll robusto ----------
     private void EnsureVisible(RectTransform target, bool centerInView)
@@ -247,7 +237,6 @@ public class GalleryScrollHybrid : MonoBehaviour
         // atualiza ScrollRect normalizado
         scrollRect.verticalNormalizedPosition = (contentH <= viewportH) ? 1f : 1f - (newY / (contentH - viewportH));
     }
-
 
     // ---------- Util ----------
     private void RebuildItems()

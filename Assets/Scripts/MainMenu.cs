@@ -53,12 +53,21 @@ public class MainMenu : MonoBehaviour
                 else if (panelControls.activeSelf) SetSelectedButton(firstControlsButton);
             }
         }
+
+        // --- Fechar painéis com ESC ou Botão B ---
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame ||
+            Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+        {
+            if (panelOptions.activeSelf) CloseOptions();
+            else if (panelGallery.activeSelf) CloseGallery();
+            else if (panelControls.activeSelf) CloseControls();
+        }
     }
 
-    private void SetSelectedButton(GameObject button)
+    private void SetSelectedButton(GameObject uiElement)
     {
         EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(button);
+        EventSystem.current.SetSelectedGameObject(uiElement);
     }
 
     public void Options()

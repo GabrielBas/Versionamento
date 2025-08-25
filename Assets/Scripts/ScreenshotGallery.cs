@@ -21,10 +21,14 @@ public class ScreenshotGallery : MonoBehaviour
     [Header("Navegação")]
     public GalleryScrollHybrid galleryNav; // arraste no inspetor
 
+    [Header("Refs (opcional)")]
+    [SerializeField] private MainMenu mainMenu; // arraste no inspetor (ou achamos em runtime)
+
     private string screenshotPath;
     private string selectedImagePath;
     private PlayerInput playerInput;
     private readonly List<GameObject> thumbnails = new List<GameObject>();
+    private bool mainMenuWasDisabledByMe = false;
 
     public SnapScrollView snapScroll; // arraste no inspector
 
@@ -32,6 +36,8 @@ public class ScreenshotGallery : MonoBehaviour
     {
         playerInput = FindObjectOfType<PlayerInput>();
         screenshotPath = Path.Combine(Application.dataPath, "Screenshots/");
+
+        if (mainMenu == null) mainMenu = FindObjectOfType<MainMenu>();
 
         if (galleryNav == null) galleryNav = FindObjectOfType<GalleryScrollHybrid>();
         if (galleryNav != null) galleryNav.skipInitialSelection = true;
@@ -50,7 +56,6 @@ public class ScreenshotGallery : MonoBehaviour
 
     private IEnumerator SelectFirstThumbnailNextFrame()
     {
-        // espera 2 frames para Layout/ContentSizeFitter atualizar
         yield return null;
         yield return null;
 
@@ -92,15 +97,12 @@ public class ScreenshotGallery : MonoBehaviour
         var button = thumbnail.GetComponent<Button>();
         if (button != null)
         {
-            // Abre a imagem correta
             button.onClick.AddListener(() => ShowFullScreen(filePath, texture));
 
-            // Desliga navegação automática — nosso script controla o D-Pad
             var nav = button.navigation;
             nav.mode = Navigation.Mode.None;
             button.navigation = nav;
 
-            // Garante que comece sem outline ligado
             var outline = thumbnail.GetComponent<Outline>();
             if (outline != null) outline.enabled = false;
         }
@@ -122,18 +124,23 @@ public class ScreenshotGallery : MonoBehaviour
 
         if (backButton != null) backButton.SetActive(false);
 
+        // 🔒 Desabilita o MainMenu enquanto o fullscreen estiver aberto (evita tratar o botão B lá)
+        if (mainMenu != null && mainMenu.enabled)
+        {
+            mainMenu.enabled = false;
+            mainMenuWasDisabledByMe = true;
+        }
+
         if (setAsBackgroundButton != null)
         {
             setAsBackgroundButton.gameObject.SetActive(true);
             setAsBackgroundButton.onClick.RemoveAllListeners();
             setAsBackgroundButton.onClick.AddListener(SetAsBackground);
 
-            // 🔥 força seleção no EventSystem → agora o botão A funciona
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(setAsBackgroundButton.gameObject);
         }
     }
-
 
     public void CloseFullScreen()
     {
@@ -142,6 +149,13 @@ public class ScreenshotGallery : MonoBehaviour
 
         if (backButton != null) backButton.SetActive(true);
         if (setAsBackgroundButton != null) setAsBackgroundButton.gameObject.SetActive(false);
+
+        // 🔓 Reabilita o MainMenu apenas se fomos nós que desabilitamos
+        if (mainMenu != null && mainMenuWasDisabledByMe)
+        {
+            mainMenu.enabled = true;
+            mainMenuWasDisabledByMe = false;
+        }
 
         if (galleryNav != null && galleryNav.CurrentIndex >= 0)
             galleryNav.SelectIndexPublic(galleryNav.CurrentIndex, centerInView: true);
@@ -165,11 +179,23 @@ public class ScreenshotGallery : MonoBehaviour
         {
             if (Gamepad.current != null && Gamepad.current.bButton.wasPressedThisFrame)
             {
-                if (fullScreenPanel.activeSelf) CloseFullScreen();
-                else backButton?.GetComponent<Button>()?.onClick.Invoke();
+                if (fullScreenPanel.activeSelf)
+                {
+                    // 🔥 No fullscreen: apenas fecha o painel (não chama backButton)
+                    CloseFullScreen();
+                    return; // impede qualquer lógica adicional neste frame
+                }
             }
         }
     }
 
-    
+    private void OnDisable()
+    {
+        // Fail-safe: se desabilitar este componente com o MainMenu ainda travado, libera.
+        if (mainMenu != null && mainMenuWasDisabledByMe)
+        {
+            mainMenu.enabled = true;
+            mainMenuWasDisabledByMe = false;
+        }
+    }
 }

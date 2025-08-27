@@ -19,6 +19,8 @@ public class UIController : MonoBehaviour
     
 
     private InputAction pauseAction;
+    private InputAction backAction; // 🔹 Novo input para voltar (ESC ou B)
+
 
     public Slider explvlSlider;
     public TMP_Text expLvlText;
@@ -38,7 +40,12 @@ public class UIController : MonoBehaviour
     public GameObject pauseScreen;
     public GameObject confirmationGameOverPanel; // 🔹 Referência ao painel de confirmação Game Over
 
+    [Header("📌 Novo painel de controles")]
+    public GameObject controlsPanel;          // ✅ Arraste aqui o painel de Controls
+    
+
     private bool canPause = true; // ✅ Define se o pause está permitido
+
 
     private void Awake()
     {
@@ -47,17 +54,36 @@ public class UIController : MonoBehaviour
         pauseAction = new InputAction(type: InputActionType.Button, binding: "<Gamepad>/start");
         pauseAction.Enable();
         pauseAction.performed += PauseAction_performed;
+
+        // 🔹 B do controle OU ESC do teclado
+        backAction = new InputAction(type: InputActionType.Button);
+        backAction.AddBinding("<Gamepad>/buttonEast"); // B
+        backAction.AddBinding("<Keyboard>/escape");    // ESC
+        backAction.Enable();
+        backAction.performed += BackAction_performed;
     }
 
     private void OnDestroy()
     {
         pauseAction.performed -= PauseAction_performed;
         pauseAction.Disable();
+
+        backAction.performed -= BackAction_performed;
+        backAction.Disable();
     }
 
     private void PauseAction_performed(InputAction.CallbackContext context)
     {
         PauseUnpause();
+    }
+
+    private void BackAction_performed(InputAction.CallbackContext context)
+    {
+        // 🔹 Se o painel Controls estiver ativo, volta pro PauseScreen
+        if (controlsPanel != null && controlsPanel.activeSelf)
+        {
+            OpenPauseFromControls();
+        }
     }
 
     void Update()
@@ -157,6 +183,7 @@ public class UIController : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+
     public void QuitGame()
     {
         Application.Quit();
@@ -220,5 +247,28 @@ public class UIController : MonoBehaviour
         yield return null;
         Time.timeScale = 1f;
         PlayerHealthController.instance.HandlePlayerDeath();
+    }
+
+    // ✅ Chamado pelo botão "Controls" no PauseScreen
+    public void OpenControls()
+    {
+        pauseScreen.SetActive(false);
+        controlsPanel.SetActive(true);
+
+        // Nenhum botão é selecionado porque o painel não tem botões
+        EventSystem.current.SetSelectedGameObject(null);
+    }
+
+    // ✅ Voltar para PauseScreen pelo botão B/ESC
+    public void OpenPauseFromControls()
+    {
+        controlsPanel.SetActive(false);
+        pauseScreen.SetActive(true);
+
+        if (pauseFirstButton != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(pauseFirstButton);
+        }
     }
 }

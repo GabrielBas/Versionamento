@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem; // <- Novo Input System
 
 public class EraserCursor : MonoBehaviour
 {
@@ -25,7 +26,8 @@ public class EraserCursor : MonoBehaviour
     void Update()
     {
         // Alterna desenho - E (teclado) ou botão Y (gamepad)
-        if (Input.GetKeyDown(KeyCode.E) || Input.GetButtonDown("buttonSouth"))
+        if (Keyboard.current.eKey.wasPressedThisFrame ||
+            (Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame))
         {
             isDrawing = !isDrawing;
 
@@ -40,20 +42,22 @@ public class EraserCursor : MonoBehaviour
             Vector3 worldPos = cursorPos;
 
             // Movimento pelo mouse
-            if (Input.mousePresent)
+            if (Mouse.current != null && Mouse.current.position.IsActuated())
             {
-                Vector3 mousePos = Input.mousePosition;
+                Vector3 mousePos = Mouse.current.position.ReadValue();
                 mousePos.z = Mathf.Abs(mainCamera.transform.position.z);
                 worldPos = mainCamera.ScreenToWorldPoint(mousePos);
             }
 
-            // Movimento pelo analógico direito do controle
-            float moveX = Input.GetAxis("RightStickHorizontal");
-            float moveY = Input.GetAxis("RightStickVertical");
-
-            if (Mathf.Abs(moveX) > 0.1f || Mathf.Abs(moveY) > 0.1f)
+            // Movimento pelo analógico direito do controle (novo input system)
+            if (Gamepad.current != null)
             {
-                worldPos = cursorPos + new Vector3(moveX, moveY, 0) * analogSensitivity * Time.deltaTime;
+                Vector2 rightStick = Gamepad.current.rightStick.ReadValue();
+
+                if (rightStick.sqrMagnitude > 0.01f)
+                {
+                    worldPos = cursorPos + new Vector3(rightStick.x, rightStick.y, 0) * analogSensitivity * Time.deltaTime;
+                }
             }
 
             // Suaviza movimento

@@ -1,73 +1,82 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem; // <-- NecessÃ¡rio para o Input System
 
 public class FreeCameraScreenshotManager : MonoBehaviour
 {
-    public Camera screenshotCamera; // Câmera secundária para modo screenshot
-    public EraserCursor eraserCursor; // Ativação do EraserCursor
-    public string[] tagsToHide; // Tags dos objetos a serem escondidos
-    public GameObject levelEndPanel; // Painel de fim de nível
-    public Button screenshotButton; // Botão para iniciar o sistema de captura
-    public TMP_Text instructionsText; // Texto de instruções para o jogador
-    public float cameraSpeed = 10f; // Velocidade de movimento da câmera
-    public float zoomSpeed = 5f; // Velocidade de zoom
-    public float minZoom = 5f;  // Zoom mínimo (máxima aproximação)
-    public float maxZoom = 50f; // Zoom máximo (máximo afastamento)
-    public float minCameraSpeed = 2f;  // Velocidade mínima (com zoom próximo)
-    public float maxCameraSpeed = 10f; // Velocidade máxima (com zoom afastado)
+    public Camera screenshotCamera;
+    //public EraserCursor eraserCursor;
+    public string[] tagsToHide;
+    public GameObject levelEndPanel;
+    public Button screenshotButton;
+    public TMP_Text instructionsText;
+    public float cameraSpeed = 10f;
+    public float zoomSpeed = 5f;
+    public float minZoom = 5f;
+    public float maxZoom = 50f;
+    public float minCameraSpeed = 2f;
+    public float maxCameraSpeed = 10f;
 
-
-
-    private bool isScreenshotMode = false; // Se o modo de screenshot foi ativado
+    private bool isScreenshotMode = false;
     private Dictionary<GameObject, bool> hiddenObjects = new Dictionary<GameObject, bool>();
     private string defaultScreenshotDirectory;
 
+    // ðŸ”¹ ReferÃªncia para Input Actions
+    public InputActionReference screenshotAction; // P ou Y
+    public InputActionReference exitAction;       // O ou B
+    //public InputActionReference eraserAction;     // E ou A
+    public InputActionReference moveAction;       // WASD / Left Stick
+    public InputActionReference zoomAction;       // Scroll / RT-LT
+
+    void OnEnable()
+    {
+        screenshotAction.action.performed += OnScreenshot;
+        exitAction.action.performed += OnExit;
+        //eraserAction.action.performed += OnEraser;
+    }
+
+    void OnDisable()
+    {
+        screenshotAction.action.performed -= OnScreenshot;
+        exitAction.action.performed -= OnExit;
+        //eraserAction.action.performed -= OnEraser;
+    }
+
     void Start()
     {
-        // Configura o diretório padrão para salvar as screenshots
         defaultScreenshotDirectory = Path.Combine(Application.dataPath, "Screenshots");
 
-        // Cria o diretório padrão caso ele não exista
         if (!Directory.Exists(defaultScreenshotDirectory))
         {
             Directory.CreateDirectory(defaultScreenshotDirectory);
-            Debug.Log("Pasta padrão criada: " + defaultScreenshotDirectory);
+            Debug.Log("Pasta padrÃ£o criada: " + defaultScreenshotDirectory);
         }
 
-        // Garante que o texto de instruções está desativado no início
         if (instructionsText != null)
-        {
             instructionsText.gameObject.SetActive(false);
-        }
 
-        // Busca automática do botão se não for atribuído no inspetor
         if (screenshotButton == null && levelEndPanel != null)
-        {
             screenshotButton = levelEndPanel.GetComponentInChildren<Button>();
-        }
 
         if (screenshotButton != null)
-        {
-            screenshotButton.onClick.AddListener(EnterScreenshotMode); // Associa o botão para ativar o modo de screenshot
-        }
+            screenshotButton.onClick.AddListener(EnterScreenshotMode);
         else
-        {
-            Debug.LogError("Botão de Screenshot não encontrado! Verifique o painel LevelEndPanel.");
-        }
+            Debug.LogError("BotÃ£o de Screenshot nÃ£o encontrado!");
 
-        // Garante que a câmera secundária está desativada no início
-        if (screenshotCamera != null && eraserCursor != null)
+        //if (screenshotCamera != null && eraserCursor != null)
+        //{
+        //    screenshotCamera.gameObject.SetActive(false);
+        //    eraserCursor.gameObject.SetActive(false);
+        //}
+
+        if (screenshotCamera != null)
         {
             screenshotCamera.gameObject.SetActive(false);
-            eraserCursor.gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.LogError("Câmera secundária para o modo Screenshot e Borracha não atribuída!");
+            
         }
     }
 
@@ -77,18 +86,6 @@ public class FreeCameraScreenshotManager : MonoBehaviour
         {
             HandleCameraMovement();
             HandleZoom();
-
-            // Captura a screenshot ao pressionar P
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                StartCoroutine(CaptureScreenshotCoroutine());
-            }
-
-            // Sai do modo screenshot ao pressionar O
-            if (Input.GetKeyDown(KeyCode.O))
-            {
-                ExitScreenshotMode();
-            }
         }
     }
 
@@ -96,80 +93,69 @@ public class FreeCameraScreenshotManager : MonoBehaviour
     {
         if (levelEndPanel != null && levelEndPanel.activeSelf)
         {
-            isScreenshotMode = true; // Ativa o modo Screenshot
-            levelEndPanel.SetActive(false); // Esconde o painel
-            HideObjectsWithTag(); // Esconde objetos com tags
+            isScreenshotMode = true;
+            levelEndPanel.SetActive(false);
+            HideObjectsWithTag();
 
-            // Ativa a câmera secundária para o modo screenshot
-            if (screenshotCamera != null && eraserCursor != null)
+            if (screenshotCamera != null)
             {
                 screenshotCamera.gameObject.SetActive(true);
-                eraserCursor.gameObject.SetActive(true);
+                
             }
 
-            // Exibe o texto de instruções
+            //if (screenshotCamera != null && eraserCursor != null)
+            //{
+            //    screenshotCamera.gameObject.SetActive(true);
+            //    eraserCursor.gameObject.SetActive(true);
+            //}
+
             if (instructionsText != null)
             {
                 instructionsText.gameObject.SetActive(true);
-                instructionsText.text = "Press 'P' to take  a  screenshot.\nPress 'O' to exit print mode.\nPress 'E' to activate the eraser.";
+                instructionsText.text =
+                    "Press 'P' or [Y] to take a screenshot.\n" +
+                    "Press 'O' or [B] to exit print mode.\n";
+                    
             }
-
-            Debug.Log("Modo Screenshot e Borracha ativado. Use as teclas de movimentação ou o mouse para ajustar a posição.");
         }
     }
 
     private void ExitScreenshotMode()
     {
         isScreenshotMode = false;
-        ShowObjectsWithTag(); // Restaura os objetos escondidos
+        ShowObjectsWithTag();
 
-        // Desativa a câmera secundária/Borracha e retorna ao painel
-        if (screenshotCamera != null && eraserCursor != null)
+        if (screenshotCamera != null)
         {
             screenshotCamera.gameObject.SetActive(false);
-            eraserCursor.gameObject.SetActive(false);
+            
         }
+
+        //if (screenshotCamera != null && eraserCursor != null)
+        //{
+        //    screenshotCamera.gameObject.SetActive(false);
+        //    eraserCursor.gameObject.SetActive(false);
+        //}
 
         if (levelEndPanel != null)
-        {
-            levelEndPanel.SetActive(true); // Mostra o painel novamente
-        }
+            levelEndPanel.SetActive(true);
 
-        // Esconde o texto de instruções
         if (instructionsText != null)
-        {
             instructionsText.gameObject.SetActive(false);
-        }
-
-        Debug.Log("Modo Screenshot desativado. Retornando ao painel.");
     }
 
     private void HandleCameraMovement()
     {
-        // Movimentação pelo teclado
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-        Vector3 move = new Vector3(horizontal, 0, vertical) * cameraSpeed * Time.deltaTime;
+        Vector2 input = moveAction.action.ReadValue<Vector2>(); // WASD ou Left Stick
+        Vector3 move = new Vector3(input.x, 0, input.y) * cameraSpeed * Time.deltaTime;
 
         if (screenshotCamera != null)
-        {
             screenshotCamera.transform.position += move;
-        }
-
-        // Movimentação pelo mouse (arrastar)
-        if (Input.GetMouseButton(0)) // Botão esquerdo do mouse para arrastar
-        {
-            Vector3 mouseDelta = new Vector3(-Input.GetAxis("Mouse X"), -Input.GetAxis("Mouse Y"), 0);
-            if (screenshotCamera != null)
-            {
-                screenshotCamera.transform.position += mouseDelta * cameraSpeed * 0.1f;
-            }
-        }
     }
 
     private void HandleZoom()
     {
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        float scroll = zoomAction.action.ReadValue<float>(); // Scroll ou RT/LT
 
         if (scroll != 0 && screenshotCamera != null)
         {
@@ -182,11 +168,8 @@ public class FreeCameraScreenshotManager : MonoBehaviour
                     maxZoom
                 );
 
-                // Atualiza dinamicamente o cameraSpeed baseado no zoom
                 float t = Mathf.InverseLerp(minZoom, maxZoom, screenshotCamera.orthographicSize);
                 cameraSpeed = Mathf.Lerp(minCameraSpeed, maxCameraSpeed, t);
-
-                Debug.Log($"Zoom atual: {screenshotCamera.orthographicSize} | CameraSpeed ajustado: {cameraSpeed}");
             }
             else
             {
@@ -195,8 +178,26 @@ public class FreeCameraScreenshotManager : MonoBehaviour
         }
     }
 
+    private void OnScreenshot(InputAction.CallbackContext ctx)
+    {
+        if (isScreenshotMode)
+            StartCoroutine(CaptureScreenshotCoroutine());
+    }
 
+    private void OnExit(InputAction.CallbackContext ctx)
+    {
+        if (isScreenshotMode)
+            ExitScreenshotMode();
+    }
 
+    //private void OnEraser(InputAction.CallbackContext ctx)
+    //{
+    //    if (isScreenshotMode && eraserCursor != null)
+    //    {
+    //        eraserCursor.gameObject.SetActive(!eraserCursor.gameObject.activeSelf);
+    //        Debug.Log("Eraser " + (eraserCursor.gameObject.activeSelf ? "Ativado" : "Desativado"));
+    //    }
+    //}
 
     private void HideObjectsWithTag()
     {
@@ -205,7 +206,7 @@ public class FreeCameraScreenshotManager : MonoBehaviour
             GameObject[] objects = GameObject.FindGameObjectsWithTag(tag);
             foreach (GameObject obj in objects)
             {
-                hiddenObjects[obj] = obj.activeSelf; // Salva o estado original
+                hiddenObjects[obj] = obj.activeSelf;
                 obj.SetActive(false);
             }
         }
@@ -214,34 +215,25 @@ public class FreeCameraScreenshotManager : MonoBehaviour
     private void ShowObjectsWithTag()
     {
         foreach (var kvp in hiddenObjects)
-        {
-            kvp.Key.SetActive(kvp.Value); // Restaura o estado original
-        }
+            kvp.Key.SetActive(kvp.Value);
+
         hiddenObjects.Clear();
     }
 
     private IEnumerator CaptureScreenshotCoroutine()
     {
         if (instructionsText != null)
-        {
-            instructionsText.gameObject.SetActive(false); // Esconde o texto antes da captura
-        }
+            instructionsText.gameObject.SetActive(false);
 
         yield return new WaitForEndOfFrame();
 
-        // Usa o diretório padrão para salvar screenshots
         string directory = defaultScreenshotDirectory;
-
-        // Define o nome do arquivo
         string filePath = Path.Combine(directory, $"screenshot_{System.DateTime.Now:yyyy-MM-dd_HH-mm-ss}.png");
 
-        // Captura a screenshot
         ScreenCapture.CaptureScreenshot(filePath);
         Debug.Log("Screenshot salva em: " + filePath);
 
         if (instructionsText != null)
-        {
-            instructionsText.gameObject.SetActive(true); // Restaura o texto após a captura
-        }
+            instructionsText.gameObject.SetActive(true);
     }
 }

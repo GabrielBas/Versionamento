@@ -12,7 +12,7 @@ public class PlayerStatUpgradeDisplay : MonoBehaviour
     public void UpdateDisplay(int cost, float oldValue, float newValue)
     {
         valueText.text = "Value: " + " + " + newValue.ToString("F1");
-        costText.text = "Cost: " + cost;
+        costText.text = " " + cost;
 
         if (cost <= CoinController.instance.currentCoins)
         {

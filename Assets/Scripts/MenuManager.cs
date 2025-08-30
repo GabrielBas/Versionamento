@@ -6,67 +6,67 @@ using System.Collections;
 public class MenuNavigation : MonoBehaviour
 {
     [Header("Panels")]
-    public GameObject selectMapPanel;
-    public GameObject selectCharacterPanel;
+    public GameObject selectSkinCharacterPanel; // 🔹 Painel de seleção de Skin
+    public GameObject selectCharacterPanel;     // Painel de seleção de personagem (Pets)
 
-    private CanvasGroup mapGroup;
+    private CanvasGroup skinCharacterGroup;
     private CanvasGroup characterGroup;
 
     [Header("First Selected")]
-    public GameObject firstMapButton;
+    public GameObject firstSkinCharacterButton;
     public GameObject firstCharacterButton;
 
     [Header("UI Buttons")]
     public Button selectButton; // botão "SELECT" da imagem
 
-    private bool isMapOpen = false;
+    private bool isCharacterOpen = false;
 
     private void Start()
     {
         // pega ou adiciona CanvasGroup automaticamente
-        mapGroup = selectMapPanel.GetComponent<CanvasGroup>();
-        if (mapGroup == null) mapGroup = selectMapPanel.AddComponent<CanvasGroup>();
+        skinCharacterGroup = selectSkinCharacterPanel.GetComponent<CanvasGroup>();
+        if (skinCharacterGroup == null)
+            skinCharacterGroup = selectSkinCharacterPanel.AddComponent<CanvasGroup>();
 
         characterGroup = selectCharacterPanel.GetComponent<CanvasGroup>();
-        if (characterGroup == null) characterGroup = selectCharacterPanel.AddComponent<CanvasGroup>();
+        if (characterGroup == null)
+            characterGroup = selectCharacterPanel.AddComponent<CanvasGroup>();
 
-        // liga evento do botão SELECT
+        // liga evento do botão SELECT → abre painel de Character (Pets)
         if (selectButton != null)
-            selectButton.onClick.AddListener(OpenSelectMap);
+            selectButton.onClick.AddListener(OpenSelectCharacter);
 
-        // começa no Character
-        OpenSelectCharacter();
+        // 🔹 começa no painel de SkinCharacter
+        OpenSelectSkinCharacter();
     }
 
     private void Update()
     {
-        // ESC no teclado ou Botão B do controle
-        if (isMapOpen && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Joystick1Button1)))
+        // ESC no teclado ou Botão B do controle → volta para SkinCharacter
+        if (isCharacterOpen && (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Joystick1Button1)))
         {
-            OpenSelectCharacter();
+            OpenSelectSkinCharacter();
         }
     }
 
-    public void OpenSelectMap()
-    {
-        isMapOpen = true;
-        SetPanelState(mapGroup, true);
-        SetPanelState(characterGroup, false);
-
-        // 🔹 Garante que o botão PLAY receba o foco
-        EventSystem.current.SetSelectedGameObject(null);
-        StartCoroutine(SetFirstSelected(firstMapButton));
-    }
-
-
     public void OpenSelectCharacter()
     {
-        isMapOpen = false;
-        SetPanelState(mapGroup, false);
+        isCharacterOpen = true;
         SetPanelState(characterGroup, true);
+        SetPanelState(skinCharacterGroup, false);
 
         EventSystem.current.SetSelectedGameObject(null);
         StartCoroutine(SetFirstSelected(firstCharacterButton));
+    }
+
+    public void OpenSelectSkinCharacter()
+    {
+        isCharacterOpen = false;
+        SetPanelState(characterGroup, false);
+        SetPanelState(skinCharacterGroup, true);
+
+        EventSystem.current.SetSelectedGameObject(null);
+        StartCoroutine(SetFirstSelected(firstSkinCharacterButton));
     }
 
     private void SetPanelState(CanvasGroup group, bool active)

@@ -9,9 +9,6 @@ public class MenuNavigation : MonoBehaviour
     public GameObject selectSkinCharacterPanel; // 🔹 Painel de seleção de Skin
     public GameObject selectCharacterPanel;     // Painel de seleção de personagem (Pets)
 
-    private CanvasGroup skinCharacterGroup;
-    private CanvasGroup characterGroup;
-
     [Header("First Selected")]
     public GameObject firstSkinCharacterButton;
     public GameObject firstCharacterButton;
@@ -23,15 +20,6 @@ public class MenuNavigation : MonoBehaviour
 
     private void Start()
     {
-        // pega ou adiciona CanvasGroup automaticamente
-        skinCharacterGroup = selectSkinCharacterPanel.GetComponent<CanvasGroup>();
-        if (skinCharacterGroup == null)
-            skinCharacterGroup = selectSkinCharacterPanel.AddComponent<CanvasGroup>();
-
-        characterGroup = selectCharacterPanel.GetComponent<CanvasGroup>();
-        if (characterGroup == null)
-            characterGroup = selectCharacterPanel.AddComponent<CanvasGroup>();
-
         // liga evento do botão SELECT → abre painel de Character (Pets)
         if (selectButton != null)
             selectButton.onClick.AddListener(OpenSelectCharacter);
@@ -52,9 +40,8 @@ public class MenuNavigation : MonoBehaviour
     public void OpenSelectCharacter()
     {
         isCharacterOpen = true;
-        SetPanelState(characterGroup, true);
-        SetPanelState(skinCharacterGroup, false);
 
+        // apenas muda o foco
         EventSystem.current.SetSelectedGameObject(null);
         StartCoroutine(SetFirstSelected(firstCharacterButton));
     }
@@ -62,18 +49,10 @@ public class MenuNavigation : MonoBehaviour
     public void OpenSelectSkinCharacter()
     {
         isCharacterOpen = false;
-        SetPanelState(characterGroup, false);
-        SetPanelState(skinCharacterGroup, true);
 
+        // apenas muda o foco
         EventSystem.current.SetSelectedGameObject(null);
         StartCoroutine(SetFirstSelected(firstSkinCharacterButton));
-    }
-
-    private void SetPanelState(CanvasGroup group, bool active)
-    {
-        group.alpha = active ? 1f : 0f;   // 0 = invisível, 1 = visível
-        group.interactable = active;
-        group.blocksRaycasts = active;
     }
 
     private IEnumerator SetFirstSelected(GameObject button)

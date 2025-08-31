@@ -21,9 +21,12 @@ public class Player : MonoBehaviour
 
     public float pickupRange = 1.5f;
 
+    [Header("Armas do jogador")]
     public List<Weapon> unassignedWeapons, assignedWeapons;
-
     public int maxWeapons;
+
+    [Tooltip("Defina aqui a arma inicial do jogador (opcional)")]
+    public Weapon startingWeapon;
 
     [HideInInspector]
     public List<Weapon> fullyLevelledWeapons = new List<Weapon>();
@@ -59,7 +62,13 @@ public class Player : MonoBehaviour
 
         CleanWeaponLists();
 
-        if (assignedWeapons.Count == 0)
+        // 🔹 Se tiver arma inicial definida no Inspector → adiciona
+        if (startingWeapon != null && unassignedWeapons.Contains(startingWeapon))
+        {
+            AddWeapon(startingWeapon);
+        }
+        // 🔹 Caso contrário, escolhe aleatória
+        else if (assignedWeapons.Count == 0 && unassignedWeapons.Count > 0)
         {
             AddWeapon(Random.Range(0, unassignedWeapons.Count));
         }
@@ -76,13 +85,9 @@ public class Player : MonoBehaviour
         if (!isDashing)
         {
             if (playerDirection.x > 0)
-            {
                 sprite.flipX = false;
-            }
             else if (playerDirection.x < 0)
-            {
                 sprite.flipX = true;
-            }
 
             anim.SetBool("walking", playerDirection.sqrMagnitude > 0);
         }
@@ -94,9 +99,7 @@ public class Player : MonoBehaviour
             if (footstepTimer <= 0f)
             {
                 if (footstepSound != null && audioSource != null)
-                {
                     audioSource.PlayOneShot(footstepSound);
-                }
 
                 footstepTimer = footstepInterval;
             }
@@ -167,14 +170,10 @@ public class Player : MonoBehaviour
     private void CleanWeaponLists()
     {
         if (unassignedWeapons != null)
-        {
             unassignedWeapons.RemoveAll(weapon => weapon == null);
-        }
 
         if (assignedWeapons != null)
-        {
             assignedWeapons.RemoveAll(weapon => weapon == null);
-        }
     }
 
     public void AddWeapon(int weaponNumber)
@@ -210,9 +209,8 @@ public class Player : MonoBehaviour
         if (weaponToRemove != null)
         {
             if (unassignedWeapons.Contains(weaponToRemove))
-            {
                 unassignedWeapons.Remove(weaponToRemove);
-            }
+
             if (assignedWeapons.Contains(weaponToRemove))
             {
                 UpdateWeaponIconsUI();
@@ -229,8 +227,6 @@ public class Player : MonoBehaviour
     public void UpdateWeaponIconsUI()
     {
         if (WeaponIconsManager.instance != null)
-        {
             WeaponIconsManager.instance.UpdateWeaponIcons();
-        }
     }
 }

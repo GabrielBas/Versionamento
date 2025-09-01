@@ -20356,7 +20356,7 @@ Transform:
   m_GameObject: {fileID: 2351539331101441941}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.3862373, y: 1.4690657, z: 1}
+  m_LocalScale: {x: 2.32, y: 2.32, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6195484026656297615}
@@ -20408,7 +20408,7 @@ SpriteRenderer:
   m_SortingLayerID: 519146277
   m_SortingLayer: 4
   m_SortingOrder: 99
-  m_Sprite: {fileID: -1704854643, guid: d83236ee6ffe0cb4ea1eb3d59c5298b5, type: 3}
+  m_Sprite: {fileID: 1979751795, guid: 8d7acdbdd1fa57245ae020dac77b57ee, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -20466,7 +20466,6 @@ MonoBehaviour:
   unassignedWeapons:
   - {fileID: 5914491106717700448}
   - {fileID: 3157304811225725945}
-  - {fileID: 6499965471766583016}
   - {fileID: 236900979642472472}
   - {fileID: 3396865562731425222}
   - {fileID: 6726538669526037032}
@@ -20474,9 +20473,10 @@ MonoBehaviour:
   - {fileID: 342906280251772267}
   - {fileID: 6824048900134138990}
   - {fileID: 524313031536369777}
-  assignedWeapons:
-  - {fileID: 236900979642472472}
+  - {fileID: 6499965471766583016}
+  assignedWeapons: []
   maxWeapons: 11
+  startingWeapon: {fileID: 524313031536369777}
   fullyLevelledWeapons: []
   dashSpeed: 100
   dashDuration: 0.2
@@ -20541,9 +20541,9 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0043494054, y: -0.06977132}
+  m_Offset: {x: 0.0019880205, y: -0.04366079}
   serializedVersion: 2
-  m_Radius: 0.41791627
+  m_Radius: 0.27123615
 --- !u!114 &7768062865485283756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20602,7 +20602,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 0.95379126
   MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0

@@ -5253,7 +5253,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 735005807077321640}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.15, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -20346,7 +20346,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7733145381839019599
 Transform:
   m_ObjectHideFlags: 0
@@ -20602,7 +20602,7 @@ MonoBehaviour:
   _rainbowMode: 0
   _userSelectedColorPalette:
   - serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4282895871
 --- !u!82 &2003532024649377272
 AudioSource:
   m_ObjectHideFlags: 0
@@ -21780,8 +21780,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 519146277
-  m_SortingLayer: 4
+  m_SortingLayerID: 97272709
+  m_SortingLayer: 6
   m_SortingOrder: 98
   m_Sprite: {fileID: 21300000, guid: 11facac86466d9842808a8c746da8bf7, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -21922,7 +21922,7 @@ MonoBehaviour:
   stats:
   - speed: 1
     damage: 10
-    range: 2
+    range: 1.5
     timeBetweenAttacks: Infinity
     amount: 1
     duration: Infinity
@@ -21930,7 +21930,7 @@ MonoBehaviour:
     upgradeText: Damage +
   - speed: 1
     damage: 20
-    range: 2
+    range: 1.5
     timeBetweenAttacks: Infinity
     amount: 1
     duration: Infinity
@@ -21995,7 +21995,7 @@ MonoBehaviour:
   weaponLevel: 0
   statsUpdated: 0
   icon: {fileID: 21300000, guid: 11facac86466d9842808a8c746da8bf7, type: 3}
-  damager: {fileID: 3014563760020524936}
+  damager: {fileID: 0}
 --- !u!114 &1472420409946861163
 MonoBehaviour:
   m_ObjectHideFlags: 0

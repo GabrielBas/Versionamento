@@ -1,30 +1,31 @@
-using UnityEngine;
-using UnityEngine.UI;
+Ôªøusing UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SkinSelector : MonoBehaviour
 {
     public Sprite[] skinSprites; // Lista de sprites das skins
     public GameObject[] skinPrefabs; // Lista de prefabs das skins
     public int[] skinCosts; // Custo de cada skin
-    public string[] skinDescriptions; // DescriÁ„o de cada skin
+    public string[] skinDescriptions; // Descri√ß√£o de cada skin
 
-    public Image previewImage; // UI para exibir a prÈ-visualizaÁ„o
-    public Button selectButton; // Bot„o para selecionar a skin
-    public Button unlockButton; // Bot„o para desbloquear skin
-    public Text priceText; // Texto para mostrar preÁo ou "Desbloqueado"
-    public Text descriptionText; // Texto para exibir a descriÁ„o do pet
+    public Image previewImage; // UI para exibir a pr√©-visualiza√ß√£o
+    public Button selectButton; // Bot√£o para selecionar a skin
+    public Button unlockButton; // Bot√£o para desbloquear skin
+    public Text priceText; // Texto para mostrar pre√ßo ou "Desbloqueado"
+    public Text descriptionText; // Texto para exibir a descri√ß√£o do pet
 
-    public Color selectedColor = Color.green; // Cor do bot„o quando selecionado
-    private Color defaultColor; // Cor padr„o do bot„o
+    public Color selectedColor = Color.green; // Cor do bot√£o quando selecionado
+    private Color defaultColor; // Cor padr√£o do bot√£o
 
     private int selectedSkinIndex = 0;
-    private int currentSelectedSkin = -1; // Armazena qual skin est· atualmente selecionada
+    private int currentSelectedSkin = -1; // Armazena qual skin est√° atualmente selecionada
     private const string SelectedSkinKey = "SelectedSkin";
 
     void Start()
     {
-        defaultColor = selectButton.image.color; // Salva a cor original do bot„o
+        defaultColor = selectButton.image.color; // Salva a cor original do bot√£o
         UpdateSkinPreview();
     }
 
@@ -43,7 +44,7 @@ public class SkinSelector : MonoBehaviour
     private void UpdateSkinPreview()
     {
         previewImage.sprite = skinSprites[selectedSkinIndex];
-        descriptionText.text = skinDescriptions[selectedSkinIndex]; // Atualiza a descriÁ„o do pet
+        descriptionText.text = skinDescriptions[selectedSkinIndex]; // Atualiza a descri√ß√£o do pet
 
         if (IsSkinUnlocked(selectedSkinIndex))
         {
@@ -58,7 +59,7 @@ public class SkinSelector : MonoBehaviour
             priceText.text = skinCosts[selectedSkinIndex] + " Coins";
         }
 
-        // Atualiza a cor do bot„o se for a skin selecionada
+        // Atualiza a cor do bot√£o se for a skin selecionada
         UpdateButtonColor();
     }
 
@@ -66,7 +67,7 @@ public class SkinSelector : MonoBehaviour
     {
         if (CoinController.instance == null)
         {
-            Debug.LogError("CoinController.instance est· nulo! Verifique se CoinController est· presente na cena.");
+            Debug.LogError("CoinController.instance est√° nulo! Verifique se CoinController est√° presente na cena.");
             return;
         }
 
@@ -79,10 +80,14 @@ public class SkinSelector : MonoBehaviour
             PlayerPrefs.Save();
 
             UpdateSkinPreview();
+
+            // üîπ For√ßa foco no bot√£o SELECT depois de desbloquear
+            EventSystem.current.SetSelectedGameObject(selectButton.gameObject);
+
         }
         else
         {
-            Debug.Log("Coins insuficientes ou skin j· desbloqueada.");
+            Debug.Log("Coins insuficientes ou skin j√° desbloqueada.");
         }
     }
 
@@ -95,10 +100,10 @@ public class SkinSelector : MonoBehaviour
     {
         PlayerPrefs.SetInt(SelectedSkinKey, selectedSkinIndex);
         PlayerPrefs.Save();
-        currentSelectedSkin = selectedSkinIndex; // Define qual skin est· ativa
+        currentSelectedSkin = selectedSkinIndex; // Define qual skin est√° ativa
         Debug.Log("Skin " + selectedSkinIndex + " selecionada!");
 
-        UpdateButtonColor(); // Atualiza a cor do bot„o
+        UpdateButtonColor(); // Atualiza a cor do bot√£o
     }
 
     private void UpdateButtonColor()
@@ -109,7 +114,7 @@ public class SkinSelector : MonoBehaviour
         }
         else
         {
-            selectButton.image.color = defaultColor; // Retorna ‡ cor padr„o
+            selectButton.image.color = defaultColor; // Retorna √† cor padr√£o
         }
     }
 }

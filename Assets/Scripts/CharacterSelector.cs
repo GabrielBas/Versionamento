@@ -1,4 +1,5 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CharacterSelector : MonoBehaviour
@@ -6,13 +7,13 @@ public class CharacterSelector : MonoBehaviour
     public Sprite[] characterSprites; // Lista de sprites dos personagens
     public GameObject[] characterPrefabs; // Lista de prefabs (opcional, caso queira instanciar)
     public int[] characterCosts; // Custo de cada personagem
-    public string[] characterDescriptions; // DescriÁ„o de cada personagem
+    public string[] characterDescriptions; // Descri√ß√£o de cada personagem
 
-    public Image previewImage; // UI para exibir a prÈ-visualizaÁ„o
-    public Button selectButton; // Bot„o para selecionar
-    public Button unlockButton; // Bot„o para desbloquear
-    public Text priceText; // Texto para preÁo ou "Desbloqueado"
-    public Text descriptionText; // Texto de descriÁ„o
+    public Image previewImage; // UI para exibir a pr√©-visualiza√ß√£o
+    public Button selectButton; // Bot√£o para selecionar
+    public Button unlockButton; // Bot√£o para desbloquear
+    public Text priceText; // Texto para pre√ßo ou "Desbloqueado"
+    public Text descriptionText; // Texto de descri√ß√£o
 
     public Color selectedColor = Color.green;
     private Color defaultColor;
@@ -64,7 +65,7 @@ public class CharacterSelector : MonoBehaviour
     {
         if (CoinController.instance == null)
         {
-            Debug.LogError("CoinController.instance est· nulo! Verifique se CoinController est· na cena.");
+            Debug.LogError("CoinController.instance est√° nulo! Verifique se CoinController est√° na cena.");
             return;
         }
 
@@ -77,10 +78,14 @@ public class CharacterSelector : MonoBehaviour
             PlayerPrefs.Save();
 
             UpdateCharacterPreview();
+
+            // üîπ For√ßa foco no bot√£o SELECT depois de desbloquear
+            EventSystem.current.SetSelectedGameObject(selectButton.gameObject);
+
         }
         else
         {
-            Debug.Log("Coins insuficientes ou personagem j· desbloqueado.");
+            Debug.Log("Coins insuficientes ou personagem j√° desbloqueado.");
         }
     }
 

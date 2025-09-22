@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -22,21 +22,26 @@ public class MainMenu : MonoBehaviour
 
     private void Awake()
     {
-        // Garante que há um PlayerInput na cena
+        // Garante que hÃ¡ um PlayerInput na cena
         playerInput = FindObjectOfType<PlayerInput>();
         if (playerInput == null)
             playerInput = gameObject.AddComponent<PlayerInput>();
 
         playerInput.SwitchCurrentActionMap("UI");
 
-        // Foco inicial no menu principal
-        SetSelectedButton(firstMainMenuButton);
+        // ðŸ”¹ SÃ³ ativa o foco inicial se houver um controle conectado
+        if (Gamepad.current != null)
+        {
+            SetSelectedButton(firstMainMenuButton);
+        }
     }
 
     private void Update()
     {
-        // Detecta se está usando gamepad (qualquer botão de navegação)
-        if (Gamepad.current != null &&
+        bool usingGamepad = Gamepad.current != null;
+
+        // Detecta se estÃ¡ usando gamepad (qualquer botÃ£o de navegaÃ§Ã£o)
+        if (usingGamepad &&
             (Gamepad.current.dpad.up.wasPressedThisFrame ||
              Gamepad.current.dpad.down.wasPressedThisFrame ||
              Gamepad.current.leftStick.up.wasPressedThisFrame ||
@@ -44,7 +49,7 @@ public class MainMenu : MonoBehaviour
              Gamepad.current.buttonNorth.wasPressedThisFrame ||
              Gamepad.current.buttonSouth.wasPressedThisFrame))
         {
-            // Se não houver botão selecionado, restaura o último válido
+            // Se nÃ£o houver botÃ£o selecionado, restaura o Ãºltimo vÃ¡lido
             if (EventSystem.current.currentSelectedGameObject == null)
             {
                 if (panelMainMenu.activeSelf) SetSelectedButton(firstMainMenuButton);
@@ -54,13 +59,19 @@ public class MainMenu : MonoBehaviour
             }
         }
 
-        // --- Fechar painéis com ESC ou Botão B ---
-        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame ||
-            Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame)
+        // --- Fechar painÃ©is com ESC ou BotÃ£o B ---
+        if ((Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) ||
+            (usingGamepad && Gamepad.current.buttonEast.wasPressedThisFrame))
         {
             if (panelOptions.activeSelf) CloseOptions();
             else if (panelGallery.activeSelf) CloseGallery();
             else if (panelControls.activeSelf) CloseControls();
+        }
+
+        // ðŸ”¹ Se desconectar o controle, limpa o foco
+        if (!usingGamepad && EventSystem.current.currentSelectedGameObject != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
         }
     }
 
@@ -74,42 +85,54 @@ public class MainMenu : MonoBehaviour
     {
         panelMainMenu.SetActive(false);
         panelOptions.SetActive(true);
-        SetSelectedButton(firstOptionsButton);
+
+        if (Gamepad.current != null) // ðŸ”¹ sÃ³ define foco se controle conectado
+            SetSelectedButton(firstOptionsButton);
     }
 
     public void CloseOptions()
     {
         panelOptions.SetActive(false);
         panelMainMenu.SetActive(true);
-        SetSelectedButton(firstMainMenuButton);
+
+        if (Gamepad.current != null)
+            SetSelectedButton(firstMainMenuButton);
     }
 
     public void Gallery()
     {
         panelMainMenu.SetActive(false);
         panelGallery.SetActive(true);
-        SetSelectedButton(firstGalleryButton);
+
+        if (Gamepad.current != null)
+            SetSelectedButton(firstGalleryButton);
     }
 
     public void CloseGallery()
     {
         panelGallery.SetActive(false);
         panelMainMenu.SetActive(true);
-        SetSelectedButton(firstMainMenuButton);
+
+        if (Gamepad.current != null)
+            SetSelectedButton(firstMainMenuButton);
     }
 
     public void Controls()
     {
         panelMainMenu.SetActive(false);
         panelControls.SetActive(true);
-        SetSelectedButton(firstControlsButton);
+
+        if (Gamepad.current != null)
+            SetSelectedButton(firstControlsButton);
     }
 
     public void CloseControls()
     {
         panelControls.SetActive(false);
         panelMainMenu.SetActive(true);
-        SetSelectedButton(firstMainMenuButton);
+
+        if (Gamepad.current != null)
+            SetSelectedButton(firstMainMenuButton);
     }
 
     public void QuitGame()
